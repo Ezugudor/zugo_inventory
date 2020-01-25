@@ -1,0 +1,57 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateSysBizMsgSeenTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('sys_biz_msg_seen', function (Blueprint $table) {
+            $table->engine = 'innoDB';
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('msg_id');
+            $table->unsignedBigInteger('recipient');
+            $table->unsignedBigInteger('biz_id');
+            $table->timestamps();
+
+            // indexing
+            $table->index(['msg_id', 'recipient','biz_id']);
+
+            // relations
+            $table->foreign('msg_id')
+                ->references('id')
+                ->on('sys_biz_msg')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('recipient')
+                ->references('id')
+                ->on('business_admin')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('biz_id')
+                ->references('id')
+                ->on('businesses')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('sys_biz_msg_seen');
+    }
+}
