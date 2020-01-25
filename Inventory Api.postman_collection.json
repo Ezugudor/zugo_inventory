@@ -1,0 +1,320 @@
+{
+	"info": {
+		"_postman_id": "e0dd4a0a-c3b8-4230-b193-ee0380733d3b",
+		"name": "Inventory Api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Business Users Get All",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{root}}/business/users",
+					"host": [
+						"{{root}}"
+					],
+					"path": [
+						"business",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Business Users Get",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzMyIsImp0aSI6IjQ2ZTUzMzFjMjE5NGRhYjg1MDZjMGUzZmZjYzdhMjc0OTk2ZDFkMmM5ZmI4YmY2ZjgzODdkNTg1NTBiYzBmYTQ3NmQ5NThmMmMzNmE0YTNkIiwiaWF0IjoxNTc5NjE5NDcxLCJuYmYiOjE1Nzk2MTk0NzEsImV4cCI6MTYxMTI0MTg3MSwic3ViIjoiMzMiLCJzY29wZXMiOltdfQ.U1fqz9nlz0MtyJXoJq6Lcstp-zNMZsrBM8bmMIAP45qrFD4klxKftEJvRUsk42zSy0hrdjhTOZlLu1q7oZei0ZSFEKYm5uXI7ogyU5ivHOKSycY3MoC8v5YlEABzM5e0hqS1oCGyDbPXLU2X8hkryUFvjdilqb1XB-H8Hgyk4Z1qt8HQs37VOwAJG2yo3CdGJgiKyiClUZLW1_y0pgRi0kdRyFxM6pZQw6wnZrRTWk3nAWNAklcpdQGQ3msE5BTwJ1hJJRuDqZ3H2QqOllmpFpF02lCcv2XvfEVvkcdtq5OzvQVomLzknHM2lkjHjW6rftcp0Yrm1Wu8sV7b5-9pyUqVfrnw8SshWKU3gdYtbgXjXyWGm2POBJr4-jQwxdppLSE1v5q9Reu1DWXYVUlIvJrNi_Lr8Af_bpAOojaeVYBH7K2CUQmyD_Sxzc7m1wklQSdEwSIRvseD64S6CLX2I-QAG6Z1ZLWUD0uK5YZrf5fjZPCyG6bJCCOVGOt3yoAJ7k6jHgDHmE0uVOwhlem9toTsUV_c3Eu4pL5cboZ2GtJzhsGVrFpKxz3FTA1ZX_j7dN4Ift_5A-6v4ve-KPOtCCWDKf3bu9M3I7ZubhLBI7Sr9CZUFbbO78Y1zGKhlMKG9zAZ2qaBRYuj7iDv2kq7eE8wwUCv6iLDH13R4GepeFQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{root}}/business/users/2",
+					"host": [
+						"{{root}}"
+					],
+					"path": [
+						"business",
+						"users",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Business Stocks Get All",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzMyIsImp0aSI6IjQ2ZTUzMzFjMjE5NGRhYjg1MDZjMGUzZmZjYzdhMjc0OTk2ZDFkMmM5ZmI4YmY2ZjgzODdkNTg1NTBiYzBmYTQ3NmQ5NThmMmMzNmE0YTNkIiwiaWF0IjoxNTc5NjE5NDcxLCJuYmYiOjE1Nzk2MTk0NzEsImV4cCI6MTYxMTI0MTg3MSwic3ViIjoiMzMiLCJzY29wZXMiOltdfQ.U1fqz9nlz0MtyJXoJq6Lcstp-zNMZsrBM8bmMIAP45qrFD4klxKftEJvRUsk42zSy0hrdjhTOZlLu1q7oZei0ZSFEKYm5uXI7ogyU5ivHOKSycY3MoC8v5YlEABzM5e0hqS1oCGyDbPXLU2X8hkryUFvjdilqb1XB-H8Hgyk4Z1qt8HQs37VOwAJG2yo3CdGJgiKyiClUZLW1_y0pgRi0kdRyFxM6pZQw6wnZrRTWk3nAWNAklcpdQGQ3msE5BTwJ1hJJRuDqZ3H2QqOllmpFpF02lCcv2XvfEVvkcdtq5OzvQVomLzknHM2lkjHjW6rftcp0Yrm1Wu8sV7b5-9pyUqVfrnw8SshWKU3gdYtbgXjXyWGm2POBJr4-jQwxdppLSE1v5q9Reu1DWXYVUlIvJrNi_Lr8Af_bpAOojaeVYBH7K2CUQmyD_Sxzc7m1wklQSdEwSIRvseD64S6CLX2I-QAG6Z1ZLWUD0uK5YZrf5fjZPCyG6bJCCOVGOt3yoAJ7k6jHgDHmE0uVOwhlem9toTsUV_c3Eu4pL5cboZ2GtJzhsGVrFpKxz3FTA1ZX_j7dN4Ift_5A-6v4ve-KPOtCCWDKf3bu9M3I7ZubhLBI7Sr9CZUFbbO78Y1zGKhlMKG9zAZ2qaBRYuj7iDv2kq7eE8wwUCv6iLDH13R4GepeFQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{root}}/business/users",
+					"host": [
+						"{{root}}"
+					],
+					"path": [
+						"business",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Business Stocks Get",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{root}}/business/stocks/23",
+					"host": [
+						"{{root}}"
+					],
+					"path": [
+						"business",
+						"stocks",
+						"23"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Business Users Add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "udor",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "tester",
+							"type": "text"
+						},
+						{
+							"key": "firstname",
+							"value": "Ezugo",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "nelsonsmrt@gmail.comulfdf",
+							"type": "text"
+						},
+						{
+							"key": "surname",
+							"value": "Okpara",
+							"type": "text"
+						},
+						{
+							"key": "phone",
+							"value": "08030659872",
+							"type": "text"
+						},
+						{
+							"key": "biz_id",
+							"value": "32",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{root}}/business/users",
+					"host": [
+						"{{root}}"
+					],
+					"path": [
+						"business",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Business Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "udor",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "tester",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{root}}/business/login",
+					"host": [
+						"{{root}}"
+					],
+					"path": [
+						"business",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Business Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzMyIsImp0aSI6IjQ2ZTUzMzFjMjE5NGRhYjg1MDZjMGUzZmZjYzdhMjc0OTk2ZDFkMmM5ZmI4YmY2ZjgzODdkNTg1NTBiYzBmYTQ3NmQ5NThmMmMzNmE0YTNkIiwiaWF0IjoxNTc5NjE5NDcxLCJuYmYiOjE1Nzk2MTk0NzEsImV4cCI6MTYxMTI0MTg3MSwic3ViIjoiMzMiLCJzY29wZXMiOltdfQ.U1fqz9nlz0MtyJXoJq6Lcstp-zNMZsrBM8bmMIAP45qrFD4klxKftEJvRUsk42zSy0hrdjhTOZlLu1q7oZei0ZSFEKYm5uXI7ogyU5ivHOKSycY3MoC8v5YlEABzM5e0hqS1oCGyDbPXLU2X8hkryUFvjdilqb1XB-H8Hgyk4Z1qt8HQs37VOwAJG2yo3CdGJgiKyiClUZLW1_y0pgRi0kdRyFxM6pZQw6wnZrRTWk3nAWNAklcpdQGQ3msE5BTwJ1hJJRuDqZ3H2QqOllmpFpF02lCcv2XvfEVvkcdtq5OzvQVomLzknHM2lkjHjW6rftcp0Yrm1Wu8sV7b5-9pyUqVfrnw8SshWKU3gdYtbgXjXyWGm2POBJr4-jQwxdppLSE1v5q9Reu1DWXYVUlIvJrNi_Lr8Af_bpAOojaeVYBH7K2CUQmyD_Sxzc7m1wklQSdEwSIRvseD64S6CLX2I-QAG6Z1ZLWUD0uK5YZrf5fjZPCyG6bJCCOVGOt3yoAJ7k6jHgDHmE0uVOwhlem9toTsUV_c3Eu4pL5cboZ2GtJzhsGVrFpKxz3FTA1ZX_j7dN4Ift_5A-6v4ve-KPOtCCWDKf3bu9M3I7ZubhLBI7Sr9CZUFbbO78Y1zGKhlMKG9zAZ2qaBRYuj7iDv2kq7eE8wwUCv6iLDH13R4GepeFQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{root}}/business/logout",
+					"host": [
+						"{{root}}"
+					],
+					"path": [
+						"business",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "oauth",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "mpa",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "nelson",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "inventory-api/oauth/token",
+					"host": [
+						"inventory-api"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
