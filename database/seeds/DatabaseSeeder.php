@@ -47,17 +47,9 @@ class DatabaseSeeder extends Seeder
 
         
 
-        $this->call('BusinessCreditPaymentSeeder');
+        
 
-        $this->call('BusinessCustomerCreditSeeder');
-
-        $this->call('BusinessCustomerCreditSumSeeder');
-
-        $this->call('BusinessPaymentResolutionSeeder');
-
-        $this->call('BusinessReceivingsSeeder');
-
-        $this->call('BusinessReceivingsSumSeeder');
+        $this->call('CustomerBusinessSeeder');
 
         $this->call('BusinessStockSeeder');
 
@@ -65,31 +57,54 @@ class DatabaseSeeder extends Seeder
 
         $this->call('BusinessSuppliersSeeder');
 
-        $this->call('BusinessSupplySeeder');
-
         $this->call('BusinessSupplySumSeeder');
 
-        $this->call('CustomerBusinessSeeder');
+        $this->call('BusinessSupplySeeder');
 
-        $this->call('CustomerOutletSeeder');
+        
+        $this->call('BusinessReceivingsSumSeeder');
 
-        $this->call('OutletCreditPaymentsSeeder');
-
-        $this->call('OutletCustomerCreditSeeder');
-
-        $this->call('OutletCustomerCreditSumSeeder');
-
-        $this->call('OutletReceivingsSeeder');
-
-        $this->call('OutletReceivingsSumSeeder');
+        $this->call('BusinessReceivingsSeeder');
 
         
 
-        $this->call('OutletSalesSeeder');
+        
+
+        
+
+        $this->call('BusinessCustomerCreditSumSeeder');
+        
+        $this->call('BusinessCustomerCreditSeeder');
+
+        $this->call('BusinessCreditPaymentSeeder');
+
+        $this->call('BusinessPaymentResolutionSeeder');
+
+
+        $this->call('CustomerOutletSeeder');
+
+        
+
+        $this->call('OutletStocksSeeder');
 
         $this->call('OutletSalesSumSeeder');
 
-        $this->call('OutletStocksSeeder');
+        $this->call('OutletSalesSeeder');
+
+        $this->call('OutletCustomerCreditSumSeeder');
+
+        $this->call('OutletCustomerCreditSeeder');
+
+        $this->call('OutletReceivingsSumSeeder');
+
+        $this->call('OutletReceivingsSeeder');
+
+       
+
+
+        $this->call('OutletCreditPaymentsSeeder');
+
+       
 
         $this->call('SysBizMsgSeeder');
 

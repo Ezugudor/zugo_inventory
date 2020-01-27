@@ -196,64 +196,6 @@ $factory->define(BusinessAdminRole::class, function (Faker $faker) {
     ];
 });
 
-$factory->define(BusinessCreditPayment::class, function (Faker $faker) {
-    return [
-        'bcp_id' => $faker->numberBetween($min = 1, $max = 50),
-        'customer' => $faker->numberBetween($min = 1, $max = 50),
-        'is_outlet' => $faker->randomElement($array = array(0, 1)),
-        'outlet' => $faker->numberBetween($min = 1, $max = 50),
-        'amount' => $faker->numberBetween($min = 1000, $max = 50000),
-        'payment_type' => $faker->randomElement($array = array('cash', 'transfer', 'cheque')),
-        'payment_desc' => $faker->realText($maxNbChars = 100, $indexSize = 2),
-        'receipt_id' => $faker->numberBetween($min = 1000, $max = 5000),
-        'bccs_id' =>  $faker->numberBetween($min = 1, $max = 50),
-        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
-        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
-    ];
-});
-
-$factory->define(BusinessCustomerCredit::class, function (Faker $faker) {
-    return [
-        'bcc_id' => $faker->numberBetween($min = 1, $max = 50),
-        'product_id' => $faker->numberBetween($min = 1, $max = 50),
-        'qty' => $faker->numberBetween($min = 1, $max = 50),
-        'total_amount' => $faker->numberBetween($min = 1000, $max = 50000),
-        'bccs_id' => $faker->numberBetween($min = 1, $max = 50),
-        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
-        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
-    ];
-});
-
-$factory->define(BusinessCustomerCreditSum::class, function (Faker $faker) {
-    return [
-        'bccs_id' => $faker->numberBetween($min = 1, $max = 50),
-        'customer' => $faker->numberBetween($min = 1, $max = 50),
-        'is_outlet' => $faker->randomElement($array = array(0, 1)),
-        'outlet' => $faker->numberBetween($min = 1, $max = 50),
-        'total_items' => $faker->numberBetween($min = 100, $max = 500),
-        'total_amount' => $faker->numberBetween($min = 1000, $max = 50000),
-        'deposit' => $faker->numberBetween($min = 1000, $max = 50000),
-        'balance' => $faker->numberBetween($min = 1000, $max = 50000),
-        'last_payed' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
-        'bss_id' =>  $faker->numberBetween($min = 1, $max = 50),
-        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
-        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
-    ];
-});
-
-
-$factory->define(BusinessPaymentResolution::class, function (Faker $faker) {
-    return [
-        'bpr_id' => $faker->numberBetween($min = 1, $max = 50),
-        'payment_id' => $faker->numberBetween($min = 1, $max = 50),
-        'payment_amount' => $faker->numberBetween($min = 1000, $max = 50000),
-        'bccs_amount_before' => $faker->numberBetween($min = 1000, $max = 50000),
-        'bccs_amount_after' => $faker->numberBetween($min = 1000, $max = 50000),
-        'bccs_id' =>  $faker->numberBetween($min = 1, $max = 50),
-        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
-        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
-    ];
-});
 
 
 $factory->define(BusinessReceivings::class, function (Faker $faker) {
@@ -381,6 +323,68 @@ $factory->define(CustomerBusiness::class, function (Faker $faker) {
         'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
     ];
 });
+
+
+$factory->define(BusinessCustomerCredit::class, function (Faker $faker) {
+    return [
+        'bcc_id' => $faker->numberBetween($min = 1, $max = 50),
+        'product_id' => $faker->numberBetween($min = 1, $max = 50),
+        'qty' => $faker->numberBetween($min = 1, $max = 50),
+        'total_amount' => $faker->numberBetween($min = 1000, $max = 50000),
+        'bccs_id' => $faker->numberBetween($min = 1, $max = 50),
+        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
+        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
+    ];
+});
+
+$factory->define(BusinessCustomerCreditSum::class, function (Faker $faker) {
+    return [
+        'bccs_id' => $faker->numberBetween($min = 1, $max = 50),
+        'customer' => $faker->numberBetween($min = 1, $max = 50),
+        'is_outlet' => $faker->randomElement($array = array(0, 1)),
+        'outlet' => $faker->numberBetween($min = 1, $max = 50),
+        'total_items' => $faker->numberBetween($min = 100, $max = 500),
+        'total_amount' => $faker->numberBetween($min = 1000, $max = 50000),
+        'deposit' => $faker->numberBetween($min = 1000, $max = 50000),
+        'balance' => $faker->numberBetween($min = 1000, $max = 50000),
+        'last_payed' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
+        'bss_id' =>  $faker->numberBetween($min = 1, $max = 50),
+        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
+        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
+    ];
+});
+
+
+$factory->define(BusinessCreditPayment::class, function (Faker $faker) {
+    return [
+        'bcp_id' => $faker->numberBetween($min = 1, $max = 50),
+        'customer' => $faker->numberBetween($min = 1, $max = 50),
+        'is_outlet' => $faker->randomElement($array = array(0, 1)),
+        'outlet' => $faker->numberBetween($min = 1, $max = 50),
+        'amount' => $faker->numberBetween($min = 1000, $max = 50000),
+        'payment_type' => $faker->randomElement($array = array('cash', 'transfer', 'cheque')),
+        'payment_desc' => $faker->realText($maxNbChars = 100, $indexSize = 2),
+        'receipt_id' => $faker->numberBetween($min = 1000, $max = 5000),
+        'bccs_id' =>  $faker->numberBetween($min = 1, $max = 50),
+        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
+        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
+    ];
+});
+
+
+$factory->define(BusinessPaymentResolution::class, function (Faker $faker) {
+    return [
+        'bpr_id' => $faker->numberBetween($min = 1, $max = 50),
+        'payment_id' => $faker->numberBetween($min = 1, $max = 50),
+        'payment_amount' => $faker->numberBetween($min = 1000, $max = 50000),
+        'bccs_amount_before' => $faker->numberBetween($min = 1000, $max = 50000),
+        'bccs_amount_after' => $faker->numberBetween($min = 1000, $max = 50000),
+        'bccs_id' =>  $faker->numberBetween($min = 1, $max = 50),
+        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
+        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
+    ];
+});
+
 
 /**
  * OUTLETS
@@ -598,7 +602,7 @@ $factory->define(OutletSalesSum::class, function (Faker $faker) {
  * System
  */
 
- 
+
 $factory->define(SystemAdmin::class, function (Faker $faker) {
     return [
         'username' => $faker->userName,
