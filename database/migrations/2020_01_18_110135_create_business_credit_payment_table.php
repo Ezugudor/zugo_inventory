@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOutletReceivingsTable extends Migration
+class CreateBusinessCreditPaymentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,32 +13,29 @@ class CreateOutletReceivingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('outlet_receivings', function (Blueprint $table) {
+        Schema::create('business_credit_payment', function (Blueprint $table) {
             $table->engine = "innoDB";
             $table->bigIncrements('id');
-            $table->integer('or_id');
-            $table->unsignedBigInteger('product_id');
-            $table->integer('old_qty');
-            $table->integer('qty');
-            $table->integer('price');
-            $table->integer('total_price');
-            $table->integer('cp');
-            $table->integer('total_cp');
-            $table->timestamp('expiry');
-            $table->enum('checkout',[1,0])->default(1);
-            $table->unsignedBigInteger('ors_id');
+            $table->integer('bcp_id');
+            $table->unsignedBigInteger('customer')->nullable();
+            $table->enum('is_outlet', [1, 0])->default(0);
+            $table->unsignedBigInteger('outlet')->nullable();
+            $table->integer('amount');
+            $table->enum('payment_type',['cash','transfer','cheque'])->default('cash');
+            $table->string('payment_desc');
+            $table->string('receipt_id');
+            $table->unsignedBigInteger('bccs_id');
             $table->unsignedBigInteger('created_by');
-            $table->unsignedBigInteger('outlet');
             $table->unsignedBigInteger('biz_id');
             $table->timestamps();
 
              // indexing
-             $table->index(['created_by', 'biz_id','outlet','ors_id','product_id'],'outlet_receivings_index');
+             $table->index(['created_by', 'biz_id','outlet','bccs_id','customer'],'business_credit_payment_index');
 
              // relations
              $table->foreign('created_by')
                  ->references('id')
-                 ->on('outlet_admin')
+                 ->on('business_admin')
                  ->onDelete('cascade')
                  ->onUpdate('cascade');
  
@@ -54,15 +51,15 @@ class CreateOutletReceivingsTable extends Migration
                  ->onDelete('cascade')
                  ->onUpdate('cascade');
 
-             $table->foreign('ors_id')
+             $table->foreign('bccs_id')
                  ->references('id')
-                 ->on('outlet_receivings_sum')
+                 ->on('business_customer_credit_sum')
                  ->onDelete('cascade')
                  ->onUpdate('cascade');
 
-             $table->foreign('product_id')
+             $table->foreign('customer')
                  ->references('id')
-                 ->on('outlet_stocks')
+                 ->on('customer_business')
                  ->onDelete('cascade')
                  ->onUpdate('cascade');
         });
@@ -75,6 +72,6 @@ class CreateOutletReceivingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('outlet_receivings');
+        Schema::dropIfExists('business_credit_payment');
     }
 }

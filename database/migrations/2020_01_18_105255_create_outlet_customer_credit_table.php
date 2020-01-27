@@ -14,6 +14,7 @@ class CreateOutletCustomerCreditTable extends Migration
     public function up()
     {
         Schema::create('outlet_customer_credit', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('occ_id');
             $table->unsignedBigInteger('product_id');

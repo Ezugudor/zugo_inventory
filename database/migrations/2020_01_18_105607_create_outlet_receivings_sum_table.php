@@ -14,6 +14,7 @@ class CreateOutletReceivingsSumTable extends Migration
     public function up()
     {
         Schema::create('outlet_receivings_sum', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('ors_id');
             $table->integer('total_items');

@@ -14,6 +14,7 @@ class CreateBusinessPaymentResolutionTable extends Migration
     public function up()
     {
         Schema::create('business_payment_resolution', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->string('bpr_id');
             $table->unsignedBigInteger('payment_id');

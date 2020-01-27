@@ -14,6 +14,7 @@ class CreateBusinessSupplyTable extends Migration
     public function up()
     {
         Schema::create('business_supply', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('bs_id');
             $table->unsignedBigInteger('product_id');

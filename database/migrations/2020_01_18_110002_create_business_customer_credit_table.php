@@ -14,6 +14,7 @@ class CreateBusinessCustomerCreditTable extends Migration
     public function up()
     {
         Schema::create('business_customer_credit', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('bcc_id');
             $table->unsignedBigInteger('product_id');

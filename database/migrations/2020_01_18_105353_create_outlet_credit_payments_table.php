@@ -14,6 +14,7 @@ class CreateOutletCreditPaymentsTable extends Migration
     public function up()
     {
         Schema::create('outlet_credit_payments', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('ocp_id');
             $table->unsignedBigInteger('customer');

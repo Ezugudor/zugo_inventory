@@ -14,6 +14,7 @@ class CreateBusinessReceivingsTable extends Migration
     public function up()
     {
         Schema::create('business_receivings', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('br_id');
             $table->unsignedBigInteger('product_id');

@@ -14,6 +14,7 @@ class CreateOutletSalesSumTable extends Migration
     public function up()
     {
         Schema::create('outlet_sales_sum', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('oss_id');
             $table->integer('total_items');

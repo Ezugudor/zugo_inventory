@@ -14,6 +14,7 @@ class CreateBusinessReceivingsSumTable extends Migration
     public function up()
     {
         Schema::create('business_receivings_sum', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('brs_id');
             $table->string('supply_code');

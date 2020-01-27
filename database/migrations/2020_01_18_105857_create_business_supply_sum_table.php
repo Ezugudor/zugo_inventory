@@ -14,6 +14,7 @@ class CreateBusinessSupplySumTable extends Migration
     public function up()
     {
         Schema::create('business_supply_sum', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('bss_id');
             $table->integer('total_items');

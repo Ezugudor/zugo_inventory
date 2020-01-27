@@ -14,6 +14,7 @@ class CreateOutletCustomerCreditSumTable extends Migration
     public function up()
     {
         Schema::create('outlet_customer_credit_sum', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('occs_id');
             $table->unsignedBigInteger('customer');

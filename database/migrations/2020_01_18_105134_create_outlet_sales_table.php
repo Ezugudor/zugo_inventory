@@ -14,6 +14,7 @@ class CreateOutletSalesTable extends Migration
     public function up()
     {
         Schema::create('outlet_sales', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('trans_id');
             $table->unsignedBigInteger('product_id');

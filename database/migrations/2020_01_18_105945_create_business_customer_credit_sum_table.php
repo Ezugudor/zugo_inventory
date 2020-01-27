@@ -14,6 +14,7 @@ class CreateBusinessCustomerCreditSumTable extends Migration
     public function up()
     {
         Schema::create('business_customer_credit_sum', function (Blueprint $table) {
+            $table->engine = "innoDB";
             $table->bigIncrements('id');
             $table->integer('bccs_id');
             $table->unsignedBigInteger('customer')->nullable();
