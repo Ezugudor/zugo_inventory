@@ -3,7 +3,7 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Api\V1\Models\BusinessStocks;
+use App\Api\V1\Models\BusinessCustomerCredit;
 use App\Http\Controllers\Api\V1\BaseController;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,25 +16,29 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessStocksController extends BaseController
+class BusinessCustomerCreditController extends BaseController
 {
 
     public function showAll()
     {
-        $result = BusinessStocks::from('business_stocks')
-            ->select(['product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
+        $result = BusinessCustomerCredit::from('business_customer_credit as a')
+            ->select(['a.bcc_id', 'b.product_name', 'a.qty', 'a.total_amount', 'a.bccs_id', 'a.biz_id', 'c.username'])
+            ->leftJoin("business_stocks as b","a.product_id","=","b.id")
+            ->leftJoin("business_admin as c", "a.created_by","=","c.id")
             ->limit(30)
             ->get();
         return $result;
     }
 
 
-    public function show(Request $request, $stockId)
+    public function show(Request $request, $customerCreditId)
     {
-        Log::info($stockId);
-        $result = BusinessStocks::from('business_stocks')
-            ->select(['product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
-            ->where('product_id', '=', $stockId)
+        Log::info($customerCreditId);
+        $result = BusinessCustomerCredit::from('business_customer_credit as a')
+        ->select(['a.bcc_id', 'b.product_name','b.product_type', 'a.qty', 'a.total_amount', 'a.bccs_id', 'a.biz_id', 'c.username'])
+        ->leftJoin("business_stocks as b","a.product_id","=","b.id")
+        ->leftJoin("business_admin as c","a.created_by","=","c.id")
+            ->where('a.id', '=', $customerCreditId)
             ->get();
         return $result;
     }
@@ -44,12 +48,11 @@ class BusinessStocksController extends BaseController
         $validator = Validator::make(
             $request->input(),
             [
-                'product_name' => 'required',
-                'product_type' => 'required',
-                'stock_qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                'product_id' => 'required',
+                'qty' => 'required',
+                'total_amount' => 'required',
+                'created_by' => 'required',
+                'biz_id' => 'required'
             ]
         );
 
@@ -73,7 +76,7 @@ class BusinessStocksController extends BaseController
 
         DB::beginTransaction();
         try {
-            $auth = BusinessStocks::create([
+            $auth = BusinessCustomerCredit::create([
                 'product_name' => $$productName,
                 'product_type' => $productType,
                 'stock_qty' => $stockQty,

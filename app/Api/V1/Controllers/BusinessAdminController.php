@@ -228,15 +228,16 @@ class BusinessAdminController extends BaseController
 
         $FullEndPoint =  $BaseEndPoint . $CurrentEndpoint;
         Log::info('urlfull' . url($FullEndPoint));
+        Log::info('base' . url($BaseEndPoint));
 
         try {
             $TokenResponse  = Curl::to($FullEndPoint)
                 ->withData([
-                    "client_id" =>   $userID,
-                    "client_secret" => base64_encode(hash_hmac('sha256', $password, 'secret', true)),
+                    "client_id" =>   51,
+                    "client_secret" => "ee6OuwROMfXslehyAtHGHK0UcDhHpe2v6C82AYdg+RU=",
                     "grant_type" => 'password',
-                    "username" =>   $username,
-                    "password" =>    $password
+                    "username" =>   "ceejay",
+                    "password" =>    "testing"
                 ])
                 ->asJson()
                 ->post();

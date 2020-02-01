@@ -3,7 +3,7 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Api\V1\Models\BusinessStocks;
+use App\Api\V1\Models\BusinessCreditPayment;
 use App\Http\Controllers\Api\V1\BaseController;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,25 +16,25 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessStocksController extends BaseController
+class BusinessCreditPaymentController extends BaseController
 {
 
     public function showAll()
     {
-        $result = BusinessStocks::from('business_stocks')
-            ->select(['product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
+        $result = BusinessCreditPayment::from('business_credit_payment')
+            ->select(['bcp_id', 'customer', 'is_outlet', 'outlet', 'amount', 'payment_type', 'payment_desc', 'receipt_id', 'bccs_id', 'created_at'])
             ->limit(30)
             ->get();
         return $result;
     }
 
 
-    public function show(Request $request, $stockId)
+    public function show(Request $request, $creditPaymentId)
     {
-        Log::info($stockId);
-        $result = BusinessStocks::from('business_stocks')
-            ->select(['product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
-            ->where('product_id', '=', $stockId)
+        Log::info($creditPaymentId);
+        $result = BusinessCreditPayment::from('business_credit_payment')
+        ->select(['bcp_id', 'customer', 'is_outlet', 'outlet', 'amount', 'payment_type', 'payment_desc', 'receipt_id', 'bccs_id', 'created_at'])
+            ->where('id', '=', $creditPaymentId)
             ->get();
         return $result;
     }
@@ -73,7 +73,7 @@ class BusinessStocksController extends BaseController
 
         DB::beginTransaction();
         try {
-            $auth = BusinessStocks::create([
+            $auth = BusinessCreditPayment::create([
                 'product_name' => $$productName,
                 'product_type' => $productType,
                 'stock_qty' => $stockQty,

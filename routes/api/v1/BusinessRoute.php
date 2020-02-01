@@ -54,6 +54,28 @@ $api->version(
                 'uses' => 'BusinessStocksController@add',
             ]);
 
+            //Business Credit Payment Routes
+            $api->get('business/credit-payment', [
+                'as' => 'business_credit_payment.viewall',
+                'uses' => 'BusinessCreditPaymentController@showAll',
+            ]);
+
+            $api->get('business/credit-payment/{id}', [
+                'as' => 'business_credit_payment.view',
+                'uses' => 'BusinessCreditPaymentController@show',
+            ]);
+
+           // Business Customer Credit Routes
+           $api->get('business/customer-credit', [
+            'as' => 'business_customer_credit.viewall',
+            'uses' => 'BusinessCustomerCreditController@showAll',
+        ]);
+
+        $api->get('business/customer-credit/{id}', [
+            'as' => 'business_customer_credit.view',
+            'uses' => 'BusinessCustomerCreditController@show',
+        ]);
+
 
         });
 
