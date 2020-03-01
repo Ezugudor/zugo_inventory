@@ -23,6 +23,7 @@ class BusinessStocksRepository extends BaseRepository
     {
         $result = BusinessStocks::from('business_stocks')
             ->select(['id', 'product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
+            ->orderBy('created_at', "DESC")
             ->limit(30)
             ->get();
         return $result;
@@ -33,6 +34,7 @@ class BusinessStocksRepository extends BaseRepository
         $result = BusinessStocks::from('business_stocks')
             ->select(['id', 'product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
             ->where('biz_id', '=', $businessId)
+            ->orderBy('created_at', "DESC")
             ->limit(30)
             ->get();
         return $result;
