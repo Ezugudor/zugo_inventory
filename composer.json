@@ -11,7 +11,8 @@
         "guzzlehttp/guzzle": "^6.5",
         "ixudra/curl": "^6.18",
         "laravel/lumen-framework": "^6.0",
-        "lukasoppermann/http-status": "^2.0"
+        "lukasoppermann/http-status": "^2.0",
+        "orumad/lumen-config-cache": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.4",

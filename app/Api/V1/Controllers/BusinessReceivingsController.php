@@ -40,12 +40,12 @@ class BusinessReceivingsController extends BaseController
     public function showAll()
     {
         $result = $this->receivingsRepo->showAll();
-        return $result;
+        return ['business_receivings_sum' => $result];
     }
     public function showAllByBusiness($bizId)
     {
         $result = $this->receivingsRepo->showAllByBusiness($bizId);
-        return $result;
+        return ['business_receivings_sum' => $result];
     }
 
 
@@ -110,7 +110,7 @@ class BusinessReceivingsController extends BaseController
             $drivers = $this->driverRepo->showAllByBusiness($bizID);
             $customers = $this->customerRepo->showAllByBusiness($bizID);
 
-            $data = ['business_receivings_sums' => $receivings, 'business_drivers' => $drivers, 'customer_businesses' => $customers];
+            $data = ['business_receivings_sum' => $receivings, 'business_drivers' => $drivers, 'business_customers' => $customers];
 
             /**
              *   If the floww can reach here, then everything is fine
@@ -237,7 +237,7 @@ class BusinessReceivingsController extends BaseController
             $drivers = $this->driverRepo->showAllByBusiness($bizID);
             $customers = $this->customerRepo->showAllByBusiness($bizID);
 
-            $data = ['business_receivings_sums' => $receivings, 'business_drivers' => $drivers, 'customer_businesses' => $customers];
+            $data = ['business_receivings_sum' => $receivings, 'business_drivers' => $drivers, 'business_customers' => $customers];
 
 
             /**

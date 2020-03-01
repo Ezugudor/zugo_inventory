@@ -87,6 +87,7 @@ $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 
 $app->register(Ixudra\Curl\CurlServiceProvider::class);
+$app->register(Orumad\ConfigCache\ServiceProviders\ConfigCacheServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*

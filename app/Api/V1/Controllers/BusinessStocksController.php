@@ -30,12 +30,12 @@ class BusinessStocksController extends BaseController
     public function showAll()
     {
         $result = $this->stocksRepo->showAll();
-        return $result;
+        return ['business_stocks' => $result];
     }
     public function showAllByBusiness($bizId)
     {
         $result = $this->stocksRepo->showAllByBusiness($bizId);
-        return $result;
+        return ['business_stocks' => $result];
     }
 
 

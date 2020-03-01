@@ -129,16 +129,16 @@ class BusinessAdminController extends BaseController
                     $result = [
                         'business' => [
                             'id' => $user->biz_id,
-                            'stocks' => $businessStocks,
-                            'customer_credit' => $businessCC,
+                            'business_stocks' => $businessStocks,
+                            'business_customer_credits' => $businessCC,
                             'supply' => $businessSC,
-                            'credit_payment' => $businessCP,
+                            'business_credit_payments' => $businessCP,
                             'accounts' => $businessAccounts,
                             'outlets' => $outlets,
                             'suppliers' => $suppliers,
-                            'receivings' => $receivings,
-                            'customers' => $customers,
-                            'drivers' => $drivers
+                            'business_receivings_sum' => $receivings,
+                            'business_customers' => $customers,
+                            'business_drivers' => $drivers
                         ],
                         'token' => $TokenResponse->access_token,
                         'current_user' => $this->pruneSensitive($user)

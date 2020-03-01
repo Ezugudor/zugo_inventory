@@ -29,13 +29,13 @@ class BusinessCreditPaymentController extends BaseController
     public function showAll()
     {
         $result = $this->creditPaymentRepo->showAll();
-        return $result;
+        return ['business_credit_payments' => $result];
     }
 
     public function showAllByBusiness($businessId)
     {
         $result = $this->creditPaymentRepo->showAllByBusiness($businessId);
-        return $result;
+        return ['business_credit_payments' => $result];
     }
 
 

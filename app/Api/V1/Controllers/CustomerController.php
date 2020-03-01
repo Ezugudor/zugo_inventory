@@ -30,13 +30,13 @@ class CustomerController extends BaseController
     public function showAll()
     {
         $result = $this->customersRepo->showAll();
-        return $result;
+        return ['business_customers' => $result];
     }
 
     public function showAllByBusiness($bizId)
     {
         $result = $this->customersRepo->showAllByBusiness($bizId);
-        return $result;
+        return ['business_customers' => $result];
     }
 
 
