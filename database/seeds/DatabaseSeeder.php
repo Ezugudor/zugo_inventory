@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call('BusinessAdminSeeder');
 
+        $this->call('BusinessDriverSeeder');
+
         $this->call('OutletAdminSeeder');
 
         $this->call('SystemAdminSeeder');

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -59,11 +59,13 @@ $app->singleton(
 |
 */
 
-// $app->middleware([
-//     App\Http\Middleware\ExampleMiddleware::class
-// ]);
+$app->middleware([
+    // App\Http\Middleware\ExampleMiddleware::class
+    'cors' => App\Http\Middleware\CorsMiddleware::class,
+]);
 
 $app->routeMiddleware([
+    // 'cors' => App\Http\Middleware\CorsMiddleware::class,
     'auth' => App\Http\Middleware\Authenticate::class,
 ]);
 
@@ -77,11 +79,13 @@ $app->routeMiddleware([
 | totally optional, so you are not required to uncomment this line.
 |
 */
+// $app->register(App\Providers\CatchAllOptionsRequestsProvider::class);
+$app->register(Dingo\Api\Provider\LumenServiceProvider::class);
 $app->register(Laravel\Passport\PassportServiceProvider::class);
 $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
-$app->register(Dingo\Api\Provider\LumenServiceProvider::class);
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+
 $app->register(Ixudra\Curl\CurlServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
@@ -103,9 +107,8 @@ $app->configure('auth');
 $app->router->group([
     'namespace' => 'App\Api\V1\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/api/v1/BusinessRoute.php';
-    require __DIR__.'/../routes/api/v1/GeneralRoute.php';
-   
+    require __DIR__ . '/../routes/api/v1/BusinessRoute.php';
+    require __DIR__ . '/../routes/api/v1/GeneralRoute.php';
 });
 
 return $app;

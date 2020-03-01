@@ -1,11 +1,10 @@
 <?php
 
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Repositories;
 
-use App\Api\V1\Models\BusinessCreditPayment;
-use App\Api\V1\Controllers\BaseController;
-use App\Api\V1\Repositories\BusinessCreditPaymentRepository;
+use App\Api\V1\Models\OutletCustomerCredit;
+use App\Api\V1\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -17,35 +16,41 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessCreditPaymentController extends BaseController
+class OutletCustomerCreditRepository extends BaseRepository
 {
-    private $creditPaymentRepo;
 
-    public function __construct(BusinessCreditPaymentRepository $creditPayment)
+    public static function showAll()
     {
-        $this->creditPaymentRepo = $creditPayment;
-    }
-
-    public function showAll()
-    {
-        $result = $this->creditPaymentRepo->showAll();
-        return $result;
-    }
-
-    public function showAllByBusiness($businessId)
-    {
-        $result = $this->creditPaymentRepo->showAllByBusiness($businessId);
-        return $result;
-    }
-
-
-    public function show(Request $request, $creditPaymentId)
-    {
-        Log::info($creditPaymentId);
-        $result = BusinessCreditPayment::from('business_credit_payment')
-            ->select(['a.id', 'a.bcp_id', 'b.firstname as customer', 'a.is_outlet', 'c.name as outlet', 'a.amount', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.bccs_id', 'a.created_at'])
+        $result = OutletCustomerCredit::from('outlet_customer_credit_sum as a')
+            ->select(['a.id', 'a.occs_id', 'b.firstname as customer', 'a.total_amount', 'a.deposit',  'a.balance', 'a.last_payed', 'c.username as author'])
             ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
-            ->leftJoin("outlets as c", "a.outlet", "=", "c.id")->where('id', '=', $creditPaymentId)
+            ->leftJoin("outlet_admin as c", "a.created_by", "=", "c.id")
+            ->where('a.balance', '>', '0')
+            ->limit(30)
+            ->get();
+        return $result;
+    }
+    public static function showAllByBusiness($businessId)
+    {
+        $result = OutletCustomerCredit::from('outlet_customer_credit_sum as a')
+            ->select(['a.id', 'a.occs_id', 'b.firstname as customer', 'a.total_amount', 'a.deposit',  'a.balance', 'a.last_payed', 'c.username as author'])
+            ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
+            ->leftJoin("outlet_admin as c", "a.created_by", "=", "c.id")
+            ->where([['a.biz_id', '=', $businessId], ['a.balance', '>', '0']])
+            ->limit(30)
+            ->get();
+        return $result;
+    }
+
+
+    public static function show(Request $request, $customerCreditId)
+    {
+        Log::info($customerCreditId);
+        $result = OutletCustomerCredit::from('outlet_customer_credit_sum as a')
+            ->select(['a.id', 'a.occs_id', 'b.firstname as customer', 'a.total_amount', 'a.deposit',  'a.balance', 'a.last_payed', 'c.username as author'])
+            ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
+            ->leftJoin("outlet_admin as c", "a.created_by", "=", "c.id")
+            ->where([['a.id', '=', $customerCreditId], ['a.balance', '>', '0']])
             ->get();
         return $result;
     }
@@ -55,12 +60,11 @@ class BusinessCreditPaymentController extends BaseController
         $validator = Validator::make(
             $request->input(),
             [
-                'product_name' => 'required',
-                'product_type' => 'required',
-                'stock_qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                'product_id' => 'required',
+                'qty' => 'required',
+                'total_amount' => 'required',
+                'created_by' => 'required',
+                'biz_id' => 'required'
             ]
         );
 
@@ -84,7 +88,7 @@ class BusinessCreditPaymentController extends BaseController
 
         DB::beginTransaction();
         try {
-            $auth = BusinessCreditPayment::create([
+            $auth = OutletCustomerCredit::create([
                 'product_name' => $$productName,
                 'product_type' => $productType,
                 'stock_qty' => $stockQty,

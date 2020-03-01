@@ -1,11 +1,10 @@
 <?php
 
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Repositories;
 
-use App\Api\V1\Models\BusinessCreditPayment;
-use App\Api\V1\Controllers\BaseController;
-use App\Api\V1\Repositories\BusinessCreditPaymentRepository;
+use App\Api\V1\Models\OutletCreditPayments;
+use App\Api\V1\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -17,35 +16,43 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessCreditPaymentController extends BaseController
+class OutletCreditPaymentRepository extends BaseRepository
 {
-    private $creditPaymentRepo;
 
-    public function __construct(BusinessCreditPaymentRepository $creditPayment)
+    public static function showAll()
     {
-        $this->creditPaymentRepo = $creditPayment;
-    }
-
-    public function showAll()
-    {
-        $result = $this->creditPaymentRepo->showAll();
+        $result = OutletCreditPayments::from('outlet_credit_payments as a')
+            ->select(['a.id', 'a.ocp_id', 'b.firstname as customer',  'c.name as outlet', 'a.amount', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.occs_id', 'a.created_at', 'd.username as author'])
+            ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
+            ->leftJoin("outlets as c", "a.outlet", "=", "c.id")
+            ->leftJoin("outlet_admin as d", "a.created_by", "=", "d.id")->limit(30)
+            ->get();
         return $result;
     }
 
-    public function showAllByBusiness($businessId)
+    public static function showAllByBusiness($businessId)
     {
-        $result = $this->creditPaymentRepo->showAllByBusiness($businessId);
+        $result = OutletCreditPayments::from('outlet_credit_payments as a')
+            ->select(['a.id', 'a.ocp_id', 'b.firstname as customer',  'c.name as outlet', 'a.amount', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.occs_id', 'a.created_at', 'd.username as author'])
+            ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
+            ->leftJoin("outlets as c", "a.outlet", "=", "c.id")
+            ->leftJoin("outlet_admin as d", "a.created_by", "=", "d.id")->limit(30)
+            ->where('a.biz_id', '=', $businessId)
+            ->limit(30)
+            ->get();
         return $result;
     }
 
 
-    public function show(Request $request, $creditPaymentId)
+    public static function show(Request $request, $creditPaymentId)
     {
         Log::info($creditPaymentId);
-        $result = BusinessCreditPayment::from('business_credit_payment')
-            ->select(['a.id', 'a.bcp_id', 'b.firstname as customer', 'a.is_outlet', 'c.name as outlet', 'a.amount', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.bccs_id', 'a.created_at'])
+        $result = OutletCreditPayments::from('outlet_credit_payments as a')
+            ->select(['a.id', 'a.ocp_id', 'b.firstname as customer',  'c.name as outlet', 'a.amount', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.occs_id', 'a.created_at', 'd.username as author'])
             ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
-            ->leftJoin("outlets as c", "a.outlet", "=", "c.id")->where('id', '=', $creditPaymentId)
+            ->leftJoin("outlets as c", "a.outlet", "=", "c.id")
+            ->leftJoin("outlet_admin as d", "a.created_by", "=", "d.id")->limit(30)
+            ->where('id', '=', $creditPaymentId)
             ->get();
         return $result;
     }
@@ -84,7 +91,7 @@ class BusinessCreditPaymentController extends BaseController
 
         DB::beginTransaction();
         try {
-            $auth = BusinessCreditPayment::create([
+            $auth = OutletCreditPayments::create([
                 'product_name' => $$productName,
                 'product_type' => $productType,
                 'stock_qty' => $stockQty,

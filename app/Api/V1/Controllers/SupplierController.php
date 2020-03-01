@@ -3,9 +3,8 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Api\V1\Models\BusinessStocks;
+use App\Api\V1\Models\BusinessSuppliers;
 use App\Api\V1\Controllers\BaseController;
-use App\Api\V1\Repositories\BusinessStocksRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -17,34 +16,34 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessStocksController extends BaseController
+class SupplierController extends BaseController
 {
 
-    private $stocksRepo;
-
-    public function __construct(BusinessStocksRepository $stocksRepo)
+    public static function showAll()
     {
-        $this->stocksRepo = $stocksRepo;
-    }
-
-    public function showAll()
-    {
-        $result = $this->stocksRepo->showAll();
+        $result = BusinessSuppliers::from('business_suppliers')
+            ->select(['id', 'company_id', 'company_name', 'address', 'logo', 'phone', 'abbr', 'email', 'created_at'])
+            ->limit(30)
+            ->get();
         return $result;
     }
-    public function showAllByBusiness($bizId)
+    public static function showAllByBusiness($businessId)
     {
-        $result = $this->stocksRepo->showAllByBusiness($bizId);
+        $result = BusinessSuppliers::from('business_suppliers')
+            ->select(['id', 'company_id', 'company_name', 'address', 'logo', 'phone', 'abbr', 'email', 'created_at'])
+            ->where('biz_id', '=', $businessId)
+            ->limit(30)
+            ->get();
         return $result;
     }
 
 
-    public static function show(Request $request, $stockId)
+    public static function show($businessId, $outletId)
     {
-        Log::info($stockId);
-        $result = BusinessStocks::from('business_stocks')
-            ->select(['product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
-            ->where('product_id', '=', $stockId)
+        $result = BusinessSuppliers::from('business_suppliers')
+            ->select(['id', 'company_id', 'company_name', 'address', 'logo', 'phone', 'abbr', 'email', 'created_at'])
+            ->where([['biz_id', '=', $businessId], ['id', '=', $outletId]])
+            ->limit(30)
             ->get();
         return $result;
     }
@@ -54,12 +53,10 @@ class BusinessStocksController extends BaseController
         $validator = Validator::make(
             $request->input(),
             [
-                'product_name' => 'required',
-                'product_type' => 'required',
-                'stock_qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                'name' => 'required',
+                'address' => 'required',
+                'phone' => 'required',
+                'logo' => 'logo',
             ]
         );
 
@@ -74,25 +71,23 @@ class BusinessStocksController extends BaseController
             return response()->json($response_message);
         }
 
-        $productName = $request->get('product_name');
-        $productType = $request->get('product_type');
-        $stockQty = $request->get('stock_qty');
-        $price = $request->get('price');
-        $cp = $request->get('cp');
-        $expiry = $request->get('expiry');
+        $name = $request->get('name');
+        $address = $request->get('address');
+        $phone = $request->get('phone');
+        $logo = $request->get('logo');
+        // $id = $request->get('cp');
+        // $expiry = $request->get('expiry');
 
         DB::beginTransaction();
         try {
-            $auth = BusinessStocks::create([
-                'product_name' => $$productName,
-                'product_type' => $productType,
-                'stock_qty' => $stockQty,
-                'price' => $price,
-                'cp' => $cp,
-                'expiry' => $expiry
+            $auth = BusinessSuppliers::create([
+                'company_name' => $name,
+                'address' => $address,
+                'logo' => $logo,
+                'phone' => $phone
             ]);
 
-            $message =  "Stock created successfully created";
+            $message =  "Supplier created successfully";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
 
 
@@ -102,7 +97,7 @@ class BusinessStocksController extends BaseController
              */
             DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Stock added successful.');
+            $response_message = $this->customHttpResponse(200, 'Outlet added successful.');
             return response()->json($response_message);
         } catch (\Throwable $th) {
 

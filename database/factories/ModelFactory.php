@@ -29,6 +29,7 @@ use App\Api\V1\Models\BusinessSuppliers;
 use App\Api\V1\Models\BusinessSupply;
 use App\Api\V1\Models\BusinessSupplySum;
 use App\Api\V1\Models\CustomerBusiness;
+use App\Api\V1\Models\BusinessDriver;
 use App\Api\V1\Models\CustomerOutlet;
 use App\Api\V1\Models\OutletAdmin;
 use App\Api\V1\Models\OutletCreditPayments;
@@ -162,9 +163,9 @@ $factory->define(BizOutletMsg::class, function (Faker $faker) {
         'title' => $faker->realText($maxNbChars = 100, $indexSize = 2),
         'body' => $faker->realText($maxNbChars = 500, $indexSize = 2),
         'biz_id' => $faker->numberBetween($min = 1, $max = 50),
-        'for_all' => $faker->randomElement($array = array(0, 1)),
-        'display_type' => $faker->randomElement($array = array(1, 0)),
-        'visibility' => $faker->randomElement($array = array(1, 0))
+        'for_all' => $faker->randomElement($array = array(1, '0')),
+        'display_type' => $faker->randomElement($array = array(1, '0')),
+        'visibility' => $faker->randomElement($array = array(1, '0'))
     ];
 });
 
@@ -175,7 +176,7 @@ $factory->define(BizOutletMsgRecipient::class, function (Faker $faker) {
         'for_group' => $faker->numberBetween($min = 1, $max = 7),
         'outlet' => $faker->numberBetween($min = 1, $max = 50),
         'biz_id' => $faker->numberBetween($min = 1, $max = 50),
-        'seen' => $faker->randomElement($array = array(0, 1)),
+        'seen' => $faker->randomElement($array = array(1, '0')),
         'date_seen' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
     ];
 });
@@ -209,7 +210,7 @@ $factory->define(BusinessReceivings::class, function (Faker $faker) {
         'cp' => $faker->numberBetween($min = 1000, $max = 50000),
         'total_cp' => $faker->numberBetween($min = 1000, $max = 50000),
         'expiry' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
-        'confirmed' => $faker->randomElement($array = array(0, 1)),
+        'confirmed' => $faker->randomElement($array = array(1, '0')),
         'brs_id' =>  $faker->numberBetween($min = 1, $max = 50),
         'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
         'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
@@ -221,14 +222,21 @@ $factory->define(BusinessReceivingsSum::class, function (Faker $faker) {
     return [
         'brs_id' => $faker->numberBetween($min = 1, $max = 50),
         'supply_code' => $faker->uuid,
+        'product' => $faker->numberBetween($min = 1, $max = 50),
         'total_items' => $faker->numberBetween($min = 1, $max = 50),
         'total_amount' => $faker->numberBetween($min = 1, $max = 50),
         'supplier' => $faker->numberBetween($min = 1, $max = 50),
+        'is_outlet' => $faker->randomElement($array = array(1, '0')),
+        'outlet' => $faker->numberBetween($min = 1, $max = 50),
+        'customer' => $faker->numberBetween($min = 1, $max = 50),
         'driver' => $faker->numberBetween($min = 1, $max = 50),
         'truck_id' => $faker->numberBetween($min = 1909, $max = 9000),
         'driver_phone' => $faker->e164PhoneNumber,
         'mode' => $faker->randomElement($array = array('DD', 'MDD')),
         'size' => $faker->randomElement($array = array(40, 30, 50)),
+        'qty' => $faker->numberBetween($min = 10, $max = 50),
+        'used' => $faker->randomElement($array = array(1, '0')),
+        'date_used' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
         'source' => $faker->randomElement($array = array('depot', 'factory')),
         'invoice' => $faker->numberBetween($min = 10000, $max = 50000),
         'descr' => $faker->realText($maxNbChars = 100, $indexSize = 2),
@@ -257,7 +265,7 @@ $factory->define(BusinessSubscription::class, function (Faker $faker) {
     return [
         'subscription_code' => $faker->uuid,
         'expiry_date' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
-        'expired' => $faker->randomElement($array = array(0, 1)),
+        'expired' => $faker->randomElement($array = array(1, '0')),
         'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
         'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
     ];
@@ -299,10 +307,11 @@ $factory->define(BusinessSupplySum::class, function (Faker $faker) {
     return [
         'bss_id' => $faker->numberBetween($min = 1, $max = 50),
         'total_items' => $faker->numberBetween($min = 1, $max = 50),
-        'total_amount' => $faker->numberBetween($min = 1, $max = 50),
+        'total_price' => $faker->numberBetween($min = 10000, $max = 5000),
+        'amount_paid' => $faker->numberBetween($min = 8000, $max = 10000),
         'invoice' => $faker->numberBetween($min = 10000, $max = 50000),
         'payment_method' => $faker->randomElement($array = array('part', 'full', 'none')),
-        'is_outlet' => $faker->randomElement($array = array(0, 1)),
+        'is_outlet' => $faker->randomElement($array = array(1, '0')),
         'outlet' => $faker->numberBetween($min = 1, $max = 50),
         'customer' => $faker->numberBetween($min = 1, $max = 50),
         'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
@@ -313,6 +322,20 @@ $factory->define(BusinessSupplySum::class, function (Faker $faker) {
 $factory->define(CustomerBusiness::class, function (Faker $faker) {
     return [
         'customer_id' => $faker->numberBetween($min = 1, $max = 50),
+        'surname' => $faker->lastName,
+        'firstname' => $faker->firstName,
+        'address' => $faker->address,
+        'avatar' => $faker->imageUrl($width = 640, $height = 480),
+        'email' => $faker->safeEmail,
+        'phone' => $faker->e164PhoneNumber,
+        'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
+        'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
+    ];
+});
+
+$factory->define(BusinessDriver::class, function (Faker $faker) {
+    return [
+        'driver_id' => $faker->numberBetween($min = 1, $max = 50),
         'surname' => $faker->lastName,
         'firstname' => $faker->firstName,
         'address' => $faker->address,
@@ -341,7 +364,7 @@ $factory->define(BusinessCustomerCreditSum::class, function (Faker $faker) {
     return [
         'bccs_id' => $faker->numberBetween($min = 1, $max = 50),
         'customer' => $faker->numberBetween($min = 1, $max = 50),
-        'is_outlet' => $faker->randomElement($array = array(0, 1)),
+        'is_outlet' => $faker->randomElement($array = array(1, '0')),
         'outlet' => $faker->numberBetween($min = 1, $max = 50),
         'total_items' => $faker->numberBetween($min = 100, $max = 500),
         'total_amount' => $faker->numberBetween($min = 1000, $max = 50000),
@@ -359,7 +382,7 @@ $factory->define(BusinessCreditPayment::class, function (Faker $faker) {
     return [
         'bcp_id' => $faker->numberBetween($min = 1, $max = 50),
         'customer' => $faker->numberBetween($min = 1, $max = 50),
-        'is_outlet' => $faker->randomElement($array = array(0, 1)),
+        'is_outlet' => $faker->randomElement($array = array(1, '0')),
         'outlet' => $faker->numberBetween($min = 1, $max = 50),
         'amount' => $faker->numberBetween($min = 1000, $max = 50000),
         'payment_type' => $faker->randomElement($array = array('cash', 'transfer', 'cheque')),
@@ -523,7 +546,7 @@ $factory->define(OutletReceivings::class, function (Faker $faker) {
         'cp' => $faker->numberBetween($min = 1000, $max = 50000),
         'total_cp' => $faker->numberBetween($min = 1000, $max = 50000),
         'expiry' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
-        'checkout' => $faker->randomElement($array = array(0, 1)),
+        'checkout' => $faker->randomElement($array = array(1, '0')),
         'ors_id' =>  $faker->numberBetween($min = 1, $max = 50),
         'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
         'outlet' =>  $faker->numberBetween($min = 1, $max = 50),
@@ -636,9 +659,9 @@ $factory->define(SysBizMsg::class, function (Faker $faker) {
         'title' => $faker->realText($maxNbChars = 100, $indexSize = 2),
         'body' => $faker->realText($maxNbChars = 500, $indexSize = 2),
         'biz_id' => $faker->numberBetween($min = 1, $max = 50),
-        'for_all' => $faker->randomElement($array = array(0, 1)),
-        'display_type' => $faker->randomElement($array = array(1, 0)),
-        'visibility' => $faker->randomElement($array = array(1, 0))
+        'for_all' => $faker->randomElement($array = array(1, '0')),
+        'display_type' => $faker->randomElement($array = array(1, '0')),
+        'visibility' => $faker->randomElement($array = array(1, '0'))
     ];
 });
 
@@ -648,7 +671,7 @@ $factory->define(SysBizMsgRecipient::class, function (Faker $faker) {
         'recipient' => $faker->numberBetween($min = 1, $max = 50),
         'for_group' => $faker->numberBetween($min = 1, $max = 7),
         'biz_id' => $faker->numberBetween($min = 1, $max = 50),
-        'seen' => $faker->randomElement($array = array(0, 1)),
+        'seen' => $faker->randomElement($array = array(1, '0')),
         'date_seen' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
     ];
 });

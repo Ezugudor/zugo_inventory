@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Repositories;
 
 use Dingo\Api\Routing\Helpers;
-use App\Http\Controllers\Controller;
 use Dingo\Api\Exception\ValidationHttpException;
 use App\Api\V1\Controllers\HttpStatusResponse;
 
-class BaseController extends Controller
+class BaseRepository
 {
     // Interface help call
     use Helpers, HttpStatusResponse;

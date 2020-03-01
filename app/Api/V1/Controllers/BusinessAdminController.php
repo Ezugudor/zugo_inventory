@@ -5,10 +5,21 @@ namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Models\BusinessAdmin;
 use App\Api\V1\Models\AdminProfile;
-use App\Http\Controllers\Api\V1\BaseController;
+use App\Api\V1\Models\BusinessStocks;
+use App\Api\V1\Controllers\BaseController;
+use App\Api\V1\Repositories\BusinessStocksRepository;
+use App\Api\V1\Repositories\BusinessCustomerCreditRepository;
+use App\Api\V1\Repositories\BusinessSupplyRepository;
+use App\Api\V1\Repositories\BusinessCreditPaymentRepository;
+use App\Api\V1\Repositories\OutletsRepository;
+use App\Api\V1\Repositories\CustomerRepository;
+use App\Api\V1\Repositories\SupplierRepository;
+use App\Api\V1\Repositories\BusinessReceivingsRepository;
 use Carbon\Carbon;
 use Ixudra\Curl\Facades\Curl;
 use App\Api\V1\Models\oAuthClient;
+use App\Api\V1\Repositories\BusinessAdminRepository;
+use App\Api\V1\Repositories\DriverRepository;
 // use App\Libraries\Encryption;
 // use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -20,6 +31,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Routing\Helpers;
 use App\Http\Controllers\Controller;
+use Dingo\Api\Auth\Auth as AuthAuth;
 use Dingo\Blueprint\Annotation\Transaction;
 use Exception;
 use Illuminate\Auth\Access\Response;
@@ -43,8 +55,19 @@ class BusinessAdminController extends BaseController
     }
 
 
-    public function login(Request $request)
-    {
+    public function login(
+        Request $request,
+        BusinessStocksRepository $businessStockRepo,
+        BusinessCustomerCreditRepository $businessCusomerCreditRepo,
+        BusinessSupplyRepository $businessSupplyRepo,
+        BusinessCreditPaymentRepository $businessCreditPaymentRepo,
+        CustomerRepository $customerRepo,
+        SupplierRepository $supplierRepo,
+        BusinessReceivingsRepository $businessReceivingsRepo,
+        BusinessAdminRepository $businessAdminRepo,
+        OutletsRepository $outletsRepo,
+        DriverRepository $driverRepo
+    ) {
         $validator = Validator::make(
             $request->input(),
             [
@@ -68,11 +91,11 @@ class BusinessAdminController extends BaseController
         $passwordPlain = $request->get('password');
 
         $user = BusinessAdmin::from('business_admin')
-            ->select(['id', 'username', 'password'])
+            ->select(['id', 'username', 'password', 'surname', 'firstname', 'email', 'phone', 'role', 'biz_id', 'avatar'])
             ->where('username', '=', $username)
             ->limit(1)
             ->get();
-        // Log::info("user returned data" . $user);
+
 
 
         if (count($user) > 0) {
@@ -90,7 +113,36 @@ class BusinessAdminController extends BaseController
                     Log::info("user does not exist11");
                     // Log::info($TokenResponse);
 
+                    $businessStocks = $businessStockRepo->showAllByBusiness($user->biz_id);
+                    $businessCC = $businessCusomerCreditRepo->showAllByBusiness($user->biz_id);
+                    $businessSC = $businessSupplyRepo->showAllByBusiness($user->biz_id);
+                    $businessCP = $businessCreditPaymentRepo->showAllByBusiness($user->biz_id);
+                    $customers = $customerRepo->showAllByBusiness($user->biz_id);
+                    $suppliers = $supplierRepo->showAllByBusiness($user->biz_id);
+                    $receivings = $businessReceivingsRepo->showAllByBusiness($user->biz_id);
+                    $businessAccounts = $businessAdminRepo->showAllByBusiness($user->biz_id);
+                    $outlets = $outletsRepo->showAllInfoByBusiness($user->biz_id);
+                    $drivers = $driverRepo->showAllByBusiness($user->biz_id);
 
+
+
+                    $result = [
+                        'business' => [
+                            'id' => $user->biz_id,
+                            'stocks' => $businessStocks,
+                            'customer_credit' => $businessCC,
+                            'supply' => $businessSC,
+                            'credit_payment' => $businessCP,
+                            'accounts' => $businessAccounts,
+                            'outlets' => $outlets,
+                            'suppliers' => $suppliers,
+                            'receivings' => $receivings,
+                            'customers' => $customers,
+                            'drivers' => $drivers
+                        ],
+                        'token' => $TokenResponse->access_token,
+                        'current_user' => $this->pruneSensitive($user)
+                    ];
                 } catch (Exception $th) {
                     //Log neccessary status detail(s) for debugging purpose.
                     Log::info("user oauth authentication error");
@@ -100,8 +152,9 @@ class BusinessAdminController extends BaseController
                     $response_message = $this->customHttpResponse(401, 'Client authentication failed.');
                     return response()->json($response_message);
                 }
+
                 //send nicer data to the user
-                $response_message = $this->customHttpResponse(200, 'Login successful. Token generated.', $TokenResponse);
+                $response_message = $this->customHttpResponse(200, 'Login successful. Token generated.', $result);
                 return response()->json($response_message);
             } else {
 
@@ -115,10 +168,20 @@ class BusinessAdminController extends BaseController
         }
     }
 
-    public function showAll()
+    public static function showAll()
     {
         $result = BusinessAdmin::from('business_admin')
             ->select(['username', 'surname', 'firstname', 'email', 'phone', 'biz_id', 'avatar'])
+            ->limit(30)
+            ->get();
+        return $result;
+    }
+
+    public static function showAllByBusiness($businessId)
+    {
+        $result = BusinessAdmin::from('business_admin')
+            ->select(['username', 'surname', 'firstname', 'email', 'phone', 'biz_id', 'avatar'])
+            ->where('biz_id', '=', $businessId)
             ->limit(30)
             ->get();
         return $result;
@@ -220,6 +283,13 @@ class BusinessAdminController extends BaseController
 
 
     // helper functions
+
+    public function pruneSensitive($arr)
+    {
+        unset($arr['password']);
+        return $arr;
+    }
+
     public function getTokenByCurl($userID, $username, $password)
     {
 
@@ -233,11 +303,11 @@ class BusinessAdminController extends BaseController
         try {
             $TokenResponse  = Curl::to($FullEndPoint)
                 ->withData([
-                    "client_id" =>   51,
-                    "client_secret" => "ee6OuwROMfXslehyAtHGHK0UcDhHpe2v6C82AYdg+RU=",
+                    "client_id" =>   $userID,
+                    "client_secret" => base64_encode(hash_hmac('sha256', $password, 'secret', true)),
                     "grant_type" => 'password',
-                    "username" =>   "ceejay",
-                    "password" =>    "testing"
+                    "username" =>   $username,
+                    "password" =>    $password
                 ])
                 ->asJson()
                 ->post();

@@ -3,9 +3,9 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Api\V1\Models\BusinessStocks;
+use App\Api\V1\Models\BusinessDriver;
 use App\Api\V1\Controllers\BaseController;
-use App\Api\V1\Repositories\BusinessStocksRepository;
+use App\Api\V1\Repositories\DriverRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -17,34 +17,34 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessStocksController extends BaseController
+class DriverController extends BaseController
 {
+    private $driverRepo;
 
-    private $stocksRepo;
-
-    public function __construct(BusinessStocksRepository $stocksRepo)
+    public function __construct(DriverRepository $drivers)
     {
-        $this->stocksRepo = $stocksRepo;
+        $this->driverRepo = $drivers;
     }
+
 
     public function showAll()
     {
-        $result = $this->stocksRepo->showAll();
+        $result = $this->driverRepo->showAll();
         return $result;
     }
     public function showAllByBusiness($bizId)
     {
-        $result = $this->stocksRepo->showAllByBusiness($bizId);
+        $result = $this->driverRepo->showAllByBusiness($bizId);
         return $result;
     }
 
 
-    public static function show(Request $request, $stockId)
+    public static function show($bizId, $outletId)
     {
-        Log::info($stockId);
-        $result = BusinessStocks::from('business_stocks')
-            ->select(['product_name', 'product_type', 'cp', 'price', 'stock_qty', 'expiry'])
-            ->where('product_id', '=', $stockId)
+        $result = BusinessDriver::from('business_driver')
+            ->select(['id', 'customer_id', 'surname', 'firstname', 'email', 'phone', 'biz_id', 'avatar', 'created_at'])
+            ->where([['biz_id', '=', $bizId], ['id', '=', $outletId]])
+            ->limit(30)
             ->get();
         return $result;
     }
@@ -54,12 +54,10 @@ class BusinessStocksController extends BaseController
         $validator = Validator::make(
             $request->input(),
             [
-                'product_name' => 'required',
-                'product_type' => 'required',
-                'stock_qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                'surname' => 'required',
+                'firstname' => 'required',
+                'email' => 'required',
+                'biz_id' => 'required'
             ]
         );
 
@@ -74,25 +72,24 @@ class BusinessStocksController extends BaseController
             return response()->json($response_message);
         }
 
-        $productName = $request->get('product_name');
-        $productType = $request->get('product_type');
-        $stockQty = $request->get('stock_qty');
-        $price = $request->get('price');
-        $cp = $request->get('cp');
-        $expiry = $request->get('expiry');
+
+        $surname = $request->get('surname');
+        $firstname = $request->get('firstname');
+        $email = $request->get('email');
+        $phone = $request->get('phone');
+        $bizID = $request->get('biz_id');
 
         DB::beginTransaction();
         try {
-            $auth = BusinessStocks::create([
-                'product_name' => $$productName,
-                'product_type' => $productType,
-                'stock_qty' => $stockQty,
-                'price' => $price,
-                'cp' => $cp,
-                'expiry' => $expiry
+            $auth = BusinessDriver::create([
+                'surname' => $surname,
+                'firstname' => $firstname,
+                'phone' => $phone,
+                'email' => $email,
+                'biz_id' => $bizID
             ]);
 
-            $message =  "Stock created successfully created";
+            $message =  "Customer created successfully";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
 
 
@@ -102,7 +99,7 @@ class BusinessStocksController extends BaseController
              */
             DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Stock added successful.');
+            $response_message = $this->customHttpResponse(200, 'Outlet added successful.');
             return response()->json($response_message);
         } catch (\Throwable $th) {
 

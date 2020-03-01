@@ -1,11 +1,11 @@
 <?php
 
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Repositories;
 
-use App\Api\V1\Models\BusinessCustomerCredit;
-use App\Api\V1\Controllers\BaseController;
-use App\Api\V1\Repositories\BusinessCustomerCreditRepository;
+use App\Api\V1\Models\OutletSales;
+use App\Api\V1\Models\OutletSalesSum;
+use App\Api\V1\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -17,23 +17,42 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessCustomerCreditController extends BaseController
+class OutletSalesRepository extends BaseRepository
 {
-    private $customerCreditRepo;
 
-    public function __construct(BusinessCustomerCreditRepository $customerCreditRepo)
+    public static function showAll()
     {
-        $this->customerCreditRepo = $customerCreditRepo;
-    }
-
-    public function showAll()
-    {
-        $result = $this->customerCreditRepo->showAll();
+        $result = OutletSales::from('outlet_sales as a')
+            ->select(['a.id', 'a.trans_id', 'a.product_id', 'a.qty', 'a.price', 'a.cp', 'a.total_price', 'a.total_cp', 'a.discount', 'b.username as admin', 'c.firstname as customer'])
+            ->leftJoin("outlet_admin as b", "a.created_by", "=", "b.id")
+            ->leftJoin("outlet_sales_sum as oss", "a.oss_id", "=", "oss.id")
+            ->leftJoin("customer_business as c", "oss.customer", "=", "c.id")
+            ->limit(30)
+            ->get();
         return $result;
     }
-    public function showAllByBusiness($businessId)
+    public static function showAllByBusiness($businessId)
     {
-        $result = $this->customerCreditRepo->showAllByBusiness($businessId);
+        $result = OutletSales::from('outlet_sales as a')
+            ->select(['a.id', 'a.trans_id', 'a.product_id', 'a.qty', 'a.price', 'a.cp', 'a.total_price', 'a.total_cp', 'a.discount', 'b.username as admin', 'c.firstname as customer'])
+            ->leftJoin("outlet_admin as b", "a.created_by", "=", "b.id")
+            ->leftJoin("outlet_sales_sum as oss", "a.oss_id", "=", "oss.id")
+            ->leftJoin("customer_business as c", "oss.customer", "=", "c.id")
+            ->where('a.biz_id', '=', $businessId)
+            ->limit(30)
+            ->get();
+        return $result;
+    }
+    public static function showAllByBusinessOutlet($businessId, $outlet)
+    {
+        $result = OutletSales::from('outlet_sales as a')
+            ->select(['a.id', 'a.trans_id', 'a.product_id', 'a.qty', 'a.price', 'a.cp', 'a.total_price', 'a.total_cp', 'a.discount', 'b.username as admin', 'c.firstname as customer'])
+            ->leftJoin("outlet_admin as b", "a.created_by", "=", "b.id")
+            ->leftJoin("outlet_sales_sum as oss", "a.oss_id", "=", "oss.id")
+            ->leftJoin("customer_business as c", "oss.customer", "=", "c.id")
+            ->where([['a.biz_id', '=', $businessId], ['a.outlet', '=', $outlet]])
+            ->limit(30)
+            ->get();
         return $result;
     }
 
@@ -41,10 +60,11 @@ class BusinessCustomerCreditController extends BaseController
     public static function show(Request $request, $customerCreditId)
     {
         Log::info($customerCreditId);
-        $result = BusinessCustomerCredit::from('business_customer_credit as a')
-            ->select(['a.bcc_id', 'b.product_name', 'b.product_type', 'a.qty', 'a.total_amount', 'a.bccs_id', 'a.biz_id', 'c.username'])
-            ->leftJoin("business_stocks as b", "a.product_id", "=", "b.id")
-            ->leftJoin("business_admin as c", "a.created_by", "=", "c.id")
+        $result = OutletSales::from('outlet_sales as a')
+            ->select(['a.id', 'a.trans_id', 'a.product_id', 'a.qty', 'a.price', 'a.cp', 'a.total_price', 'a.total_cp', 'a.discount', 'b.username', 'c.firstname'])
+            ->leftJoin("outlet_admin as b", "a.created_by", "=", "b.id")
+            ->leftJoin("outlet_sales_sum as oss", "a.oss_id", "=", "oss.id")
+            ->leftJoin("customer_business as c", "oss.customer", "=", "c.id")
             ->where('a.id', '=', $customerCreditId)
             ->get();
         return $result;
@@ -83,7 +103,7 @@ class BusinessCustomerCreditController extends BaseController
 
         DB::beginTransaction();
         try {
-            $auth = BusinessCustomerCredit::create([
+            $auth = OutletSales::create([
                 'product_name' => $$productName,
                 'product_type' => $productType,
                 'stock_qty' => $stockQty,

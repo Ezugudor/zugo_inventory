@@ -1,11 +1,10 @@
 <?php
 
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Repositories;
 
-use App\Api\V1\Models\BusinessCreditPayment;
-use App\Api\V1\Controllers\BaseController;
-use App\Api\V1\Repositories\BusinessCreditPaymentRepository;
+use App\Api\V1\Models\BusinessCustomerCredit;
+use App\Api\V1\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -17,35 +16,40 @@ use Illuminate\Support\Facades\Log;
 // use Dingo\Api\Exception\ValidationHttpException;
 use Illuminate\Support\Facades\Validator;
 
-class BusinessCreditPaymentController extends BaseController
+class BusinessCustomerCreditRepository extends BaseRepository
 {
-    private $creditPaymentRepo;
 
-    public function __construct(BusinessCreditPaymentRepository $creditPayment)
+    public static function showAll()
     {
-        $this->creditPaymentRepo = $creditPayment;
+        $result = BusinessCustomerCredit::from('business_customer_credit as a')
+            ->select(['a.bcc_id', 'b.product_name', 'a.qty', 'a.total_amount', 'a.bccs_id', 'a.biz_id', 'c.username'])
+            ->leftJoin("business_stocks as b", "a.product_id", "=", "b.id")
+            ->leftJoin("business_admin as c", "a.created_by", "=", "c.id")
+            ->limit(30)
+            ->get();
+        return $result;
     }
-
-    public function showAll()
+    public static function showAllByBusiness($businessId)
     {
-        $result = $this->creditPaymentRepo->showAll();
+        $result = BusinessCustomerCredit::from('business_customer_credit as a')
+            ->select(['a.bcc_id', 'b.product_name', 'a.qty', 'a.total_amount', 'a.bccs_id', 'a.biz_id', 'c.username'])
+            ->leftJoin("business_stocks as b", "a.product_id", "=", "b.id")
+            ->leftJoin("business_admin as c", "a.created_by", "=", "c.id")
+            ->where('a.biz_id', '=', $businessId)
+            ->limit(30)
+            ->get();
         return $result;
     }
 
-    public function showAllByBusiness($businessId)
-    {
-        $result = $this->creditPaymentRepo->showAllByBusiness($businessId);
-        return $result;
-    }
 
-
-    public function show(Request $request, $creditPaymentId)
+    public static function show(Request $request, $customerCreditId)
     {
-        Log::info($creditPaymentId);
-        $result = BusinessCreditPayment::from('business_credit_payment')
-            ->select(['a.id', 'a.bcp_id', 'b.firstname as customer', 'a.is_outlet', 'c.name as outlet', 'a.amount', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.bccs_id', 'a.created_at'])
-            ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
-            ->leftJoin("outlets as c", "a.outlet", "=", "c.id")->where('id', '=', $creditPaymentId)
+        Log::info($customerCreditId);
+        $result = BusinessCustomerCredit::from('business_customer_credit as a')
+            ->select(['a.bcc_id', 'b.product_name', 'b.product_type', 'a.qty', 'a.total_amount', 'a.bccs_id', 'a.biz_id', 'c.username'])
+            ->leftJoin("business_stocks as b", "a.product_id", "=", "b.id")
+            ->leftJoin("business_admin as c", "a.created_by", "=", "c.id")
+            ->where('a.id', '=', $customerCreditId)
             ->get();
         return $result;
     }
@@ -55,12 +59,11 @@ class BusinessCreditPaymentController extends BaseController
         $validator = Validator::make(
             $request->input(),
             [
-                'product_name' => 'required',
-                'product_type' => 'required',
-                'stock_qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                'product_id' => 'required',
+                'qty' => 'required',
+                'total_amount' => 'required',
+                'created_by' => 'required',
+                'biz_id' => 'required'
             ]
         );
 
@@ -84,7 +87,7 @@ class BusinessCreditPaymentController extends BaseController
 
         DB::beginTransaction();
         try {
-            $auth = BusinessCreditPayment::create([
+            $auth = BusinessCustomerCredit::create([
                 'product_name' => $$productName,
                 'product_type' => $productType,
                 'stock_qty' => $stockQty,

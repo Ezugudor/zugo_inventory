@@ -14,6 +14,7 @@ class BusinessAdmin extends BaseModel implements AuthenticatableContract, Author
 {
     use Authenticatable, Authorizable, HasApiTokens;
     protected $table = "business_admin";
+    // protected $guarded = ['password'];
 
     public function findForPassport($username)
     {
