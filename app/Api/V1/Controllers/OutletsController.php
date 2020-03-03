@@ -20,26 +20,31 @@ use Illuminate\Support\Facades\Validator;
 class OutletsController extends BaseController
 {
 
-    public static function showAll()
+
+    private $outletsRepo;
+
+    public function __construct(OutletsRepository $outletsRepo)
     {
-        $result = Outlets::from('outlets')
-            ->select(['id', 'outlet_id', 'name', 'address', 'logo', 'phone', 'abbr', 'email', 'disabled', 'created_at'])
-            ->limit(30)
-            ->get();
-        return $result;
-    }
-    public static function showAllByBusiness(Request $request, OutletsRepository $outletsRepo)
-    {
-        $businessId = $request->get('businessId');
-        $outlets = $outletsRepo->showAllByBusiness($businessId);
-        return ['outlets' => $outlets];
+        $this->outletsRepo = $outletsRepo;
     }
 
-    public static function showAllInfoByBusiness($bizId, OutletsRepository $outletsRepo)
+    public function showAll()
+    {
+        $result = $this->outletsRepo->showAll();
+        return ['outlets' => $result];
+    }
+    public function showAllByBusiness(Request $request, $bizId = null)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $result = $this->outletsRepo->showAllByBusiness($bizID);
+        return ['outlets' => $result];
+    }
+    public function showAllInfoByBusiness($bizId, OutletsRepository $outletsRepo)
     {
         // $businessId = $request->get('businessId');
-        $outlets = $outletsRepo->showAllInfoByBusiness($bizId);
-        return ['outlets' => $outlets];
+        $result = $this->outletsRepo->showAllInfoByBusiness($bizId);
+        return ['outlets' => $result];
     }
 
 
@@ -53,15 +58,20 @@ class OutletsController extends BaseController
         return $result;
     }
 
+
+    /////////////////////////////////////
+    /////////////////////////////////////
+    /////////////////////////////////////
+
     public function add(Request $request)
     {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
         $validator = Validator::make(
             $request->input(),
             [
                 'name' => 'required',
-                'address' => 'required',
-                'phone' => 'required',
-                'logo' => 'logo',
             ]
         );
 
@@ -76,23 +86,18 @@ class OutletsController extends BaseController
             return response()->json($response_message);
         }
 
-        $name = $request->get('name');
-        $address = $request->get('address');
-        $phone = $request->get('phone');
-        $logo = $request->get('logo');
-        // $id = $request->get('cp');
-        // $expiry = $request->get('expiry');
 
         DB::beginTransaction();
         try {
-            $auth = Outlets::create([
-                'name' => $name,
-                'address' => $address,
-                'logo' => $logo,
-                'phone' => $phone
-            ]);
+            $detail = $request->input();
+            $detail['user'] = $user;
+            $detail['biz_id'] = $bizID;
+            $in = $this->outletsRepo->add($detail);
 
-            $message =  "Outlet created successfully";
+            $result = $this->outletsRepo->showAllByBusiness($bizID);
+            $res =  ['outlets' => $result];
+
+            $message =  "Outlet created successfully created";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
 
 
@@ -102,7 +107,114 @@ class OutletsController extends BaseController
              */
             DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Outlet added successful.');
+            $response_message = $this->customHttpResponse(200, 'Outlet added successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message);
+        }
+    }
+
+
+
+    // //////////////////////////////////////
+    // //////////////////////////////////////
+    // //////////////////////////////////////
+
+    public function update(Request $request, $id)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $validator = Validator::make(
+            $request->input(),
+            [
+                'name' => 'required'
+            ]
+        );
+
+        Log::info("logging Requests inputs");
+        Log::info($request->input());
+        if ($validator->fails()) {
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("logging error" . $validator);
+
+
+            //send nicer error to the user
+            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
+            return response()->json($response_message);
+        }
+
+        DB::beginTransaction();
+        try {
+            $detail = $request->input();
+            $in = $this->outletsRepo->update($id, $detail, $bizID);
+
+            $result = $this->outletsRepo->showAllByBusiness($bizID);
+            $res =  ['outlets' => $result];
+
+            $message =  "Outlet updated successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Outlet updated successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message);
+        }
+    }
+
+
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+
+
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
+        DB::beginTransaction();
+        try {
+            $in = $this->outletsRepo->delete($id, $bizID);
+
+            $result = $this->outletsRepo->showAllByBusiness($bizID);
+            $res =  ['outlets' => $result];
+
+            $message =  "Outlet deleted successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Outlet deleted successful.', $res);
             return response()->json($response_message);
         } catch (\Throwable $th) {
 

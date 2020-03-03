@@ -82,44 +82,20 @@ class OutletsRepository extends BaseRepository
             ->get();
         return $result;
     }
-
-    public function add(Request $request)
+    //////////////////////////////////////////
+    //////////////////////////////////////////
+    //////////////////////////////////////////
+    public function add($details)
     {
-        $validator = Validator::make(
-            $request->input(),
-            [
-                'name' => 'required',
-                'address' => 'required',
-                'phone' => 'required',
-                'logo' => 'logo',
-            ]
-        );
 
-
-        if ($validator->fails()) {
-
-            //Log neccessary status detail(s) for debugging purpose.
-            Log::info("logging error" . $validator);
-
-            //send nicer error to the user
-            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
-            return response()->json($response_message);
-        }
-
-        $name = $request->get('name');
-        $address = $request->get('address');
-        $phone = $request->get('phone');
-        $logo = $request->get('logo');
-        // $id = $request->get('cp');
-        // $expiry = $request->get('expiry');
-
-        DB::beginTransaction();
         try {
-            $auth = Outlets::create([
-                'name' => $name,
-                'address' => $address,
-                'logo' => $logo,
-                'phone' => $phone
+            $res = Outlets::create([
+                'name' => $details['name'],
+                'address' => $details['address'],
+                'phone' => $details['phone'],
+                'email' => $details['email'],
+                'biz_id' => $details['biz_id'],
+                'created_by' => $details['user']
             ]);
 
             $message =  "Outlet created successfully";
@@ -130,9 +106,42 @@ class OutletsRepository extends BaseRepository
              *   If the floww can reach here, then everything is fine
              *   just commit and send success response back 
              */
-            DB::commit();
+            // DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Outlet added successful.');
+            $response_message = $this->customHttpResponse(200, 'Outlet added successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message);
+        }
+    }
+
+
+    // ///////////////////////////////////////////
+    // ///////////////////////////////////////////
+    // ///////////////////////////////////////////
+    public function update($id, $details, $bizID)
+    {
+
+        try {
+
+            $auth = Outlets::where('id', $id)
+                ->where('biz_id', $bizID)
+                ->update([
+                    'name' => $details['name'],
+                    'address' => $details['address'],
+                    'phone' => $details['phone'],
+                    'email' => $details['email']
+                ]);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Outlet updated successful.');
             return response()->json($response_message);
         } catch (\Throwable $th) {
 
@@ -142,7 +151,37 @@ class OutletsRepository extends BaseRepository
             Log::info("One of the DB statements failed. Error: " . $th);
 
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            $response_message = $this->customHttpResponse(500, 'Transaction Error in Stocks repo.');
+            return response()->json($response_message);
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+    public function delete($id, $bizID)
+    {
+
+        try {
+
+            $auth = Outlets::where('id', $id)
+                ->where('biz_id', $bizID)
+                ->delete();
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Outlet deleted successful.');
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error in Stocks repo.');
             return response()->json($response_message);
         }
     }

@@ -33,9 +33,11 @@ class CustomerController extends BaseController
         return ['business_customers' => $result];
     }
 
-    public function showAllByBusiness($bizId)
+    public function showAllByBusiness(Request $request, $bizId = null)
     {
-        $result = $this->customersRepo->showAllByBusiness($bizId);
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $result = $this->customersRepo->showAllByBusiness($bizID);
         return ['business_customers' => $result];
     }
 
@@ -50,15 +52,22 @@ class CustomerController extends BaseController
         return $result;
     }
 
+
+    /////////////////////////////////////
+    /////////////////////////////////////
+    /////////////////////////////////////
+
     public function add(Request $request)
     {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
         $validator = Validator::make(
             $request->input(),
             [
                 'surname' => 'required',
                 'firstname' => 'required',
-                'email' => 'required',
-                'biz_id' => 'required'
+                'email' => 'required'
             ]
         );
 
@@ -74,23 +83,17 @@ class CustomerController extends BaseController
         }
 
 
-        $surname = $request->get('surname');
-        $firstname = $request->get('firstname');
-        $email = $request->get('email');
-        $phone = $request->get('phone');
-        $bizID = $request->get('biz_id');
-
         DB::beginTransaction();
         try {
-            $auth = CustomerBusiness::create([
-                'surname' => $surname,
-                'firstname' => $firstname,
-                'phone' => $phone,
-                'email' => $email,
-                'biz_id' => $bizID
-            ]);
+            $detail = $request->input();
+            $detail['user'] = $user;
+            $detail['biz_id'] = $bizID;
+            $in = $this->customersRepo->add($detail);
 
-            $message =  "Customer created successfully";
+            $result = $this->customersRepo->showAllByBusiness($bizID);
+            $res =  ['business_customers' => $result];
+
+            $message =  "Customer created successfully created";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
 
 
@@ -100,7 +103,116 @@ class CustomerController extends BaseController
              */
             DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Outlet added successful.');
+            $response_message = $this->customHttpResponse(200, 'Customer added successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message);
+        }
+    }
+
+
+
+    // //////////////////////////////////////
+    // //////////////////////////////////////
+    // //////////////////////////////////////
+
+    public function update(Request $request, $id)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $validator = Validator::make(
+            $request->input(),
+            [
+                'surname' => 'required',
+                'firstname' => 'required',
+                'email' => 'required'
+            ]
+        );
+
+        Log::info("logging Requests inputs");
+        Log::info($request->input());
+        if ($validator->fails()) {
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("logging error" . $validator);
+
+
+            //send nicer error to the user
+            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
+            return response()->json($response_message);
+        }
+
+        DB::beginTransaction();
+        try {
+            $detail = $request->input();
+            $in = $this->customersRepo->update($id, $detail, $bizID);
+
+            $result = $this->customersRepo->showAllByBusiness($bizID);
+            $res =  ['business_customers' => $result];
+
+            $message =  "Customer updated successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Customer updated successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message);
+        }
+    }
+
+
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+
+
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
+        DB::beginTransaction();
+        try {
+            $in = $this->customersRepo->delete($id, $bizID);
+
+            $result = $this->customersRepo->showAllByBusiness($bizID);
+            $res =  ['business_customers' => $result];
+
+            $message =  "Customer deleted successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Customer deleted successful.', $res);
             return response()->json($response_message);
         } catch (\Throwable $th) {
 

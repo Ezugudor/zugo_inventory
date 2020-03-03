@@ -39,9 +39,24 @@ $api->version(
             ]);
 
             // Business Stocks Routes
+            $api->post('business/stocks', [
+                'as' => 'business_stock.viewall',
+                'uses' => 'BusinessStocksController@add',
+            ]);
+
+            $api->put('business/stocks/{id}', [
+                'as' => 'business_stock.update',
+                'uses' => 'BusinessStocksController@update',
+            ]);
+
+            $api->delete('business/stocks/{id}', [
+                'as' => 'business_stock.delete',
+                'uses' => 'BusinessStocksController@delete',
+            ]);
+
             $api->get('business/{bizId}/stocks', [
                 'as' => 'business_stock.viewall',
-                'uses' => 'BusinessStocksController@showAll',
+                'uses' => 'BusinessStocksController@showAllByBusiness',
             ]);
 
             $api->get('business/{bizId}/stocks/{id}', [
@@ -77,6 +92,32 @@ $api->version(
             ]);
 
             //Business Customer Routes
+            $api->get('business/customers', [
+                'as' => 'business_customer.viewall',
+                'uses' => 'CustomerController@showAllByBusiness',
+            ]);
+
+            $api->get('business/customers/{id}', [
+                'as' => 'business_customer.view',
+                'uses' => 'CustomerController@show',
+            ]);
+
+            $api->post('business/customers', [
+                'as' => 'business_customer.add',
+                'uses' => 'CustomerController@add',
+            ]);
+
+            $api->put('business/customers/{id}', [
+                'as' => 'business_customer.update',
+                'uses' => 'CustomerController@update',
+            ]);
+
+            $api->delete('business/customers/{id}', [
+                'as' => 'business_customer.delete',
+                'uses' => 'CustomerController@delete',
+            ]);
+
+            // old
             $api->get('business/{bizId}/customers', [
                 'as' => 'business_customer.viewall',
                 'uses' => 'CustomerController@showAllByBusiness',
@@ -88,6 +129,32 @@ $api->version(
             ]);
 
             //Business Outlets Routes
+            $api->get('business/outlets', [
+                'as' => 'business_outlet.viewall',
+                'uses' => 'OutletsController@showAllByBusiness',
+            ]);
+
+            $api->get('business/outlets/{id}', [
+                'as' => 'business_outlet.view',
+                'uses' => 'OutletsController@show',
+            ]);
+
+            $api->post('business/outlets', [
+                'as' => 'business_outlet.add',
+                'uses' => 'OutletsController@add',
+            ]);
+
+            $api->put('business/outlets/{id}', [
+                'as' => 'business_outlet.update',
+                'uses' => 'OutletsController@update',
+            ]);
+
+            $api->delete('business/outlets/{id}', [
+                'as' => 'business_outlet.delete',
+                'uses' => 'OutletsController@delete',
+            ]);
+
+            //old
             $api->get('business/{bizId}/outlets', [
                 'as' => 'business_outlet.viewall',
                 'uses' => 'OutletsController@showAllInfoByBusiness',
@@ -107,6 +174,11 @@ $api->version(
             $api->get('business/{bizId}/receivings/{id}', [
                 'as' => 'receivings.view',
                 'uses' => 'BusinessReceivingsController@show',
+            ]);
+
+            $api->delete('business/receivings/{id}', [
+                'as' => 'business_receivings.delete',
+                'uses' => 'BusinessReceivingsController@delete',
             ]);
 
             $api->post('business/receivings', [

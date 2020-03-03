@@ -112,4 +112,29 @@ class BusinessReceivingsRepository extends BaseRepository
             return response()->json($response_message);
         }
     }
+
+    public function delete($id, $bizID)
+    {
+
+        try {
+
+            $auth = BusinessReceivingsSum::where('id', $id)
+                ->where('biz_id', $bizID)
+                ->delete();
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Receivings deleted successful.');
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error in Stocks repo.');
+            return response()->json($response_message);
+        }
+    }
 }

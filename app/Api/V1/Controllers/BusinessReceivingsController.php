@@ -99,7 +99,7 @@ class BusinessReceivingsController extends BaseController
                     'size' => $size,
                     'biz_id' => $bizID,
                     'created_by' => $user,
-                    'supplier' => $item
+                    'supplier' => '1'
                 ]);
             }
 
@@ -132,6 +132,7 @@ class BusinessReceivingsController extends BaseController
             return response()->json($response_message);
         }
     }
+
     public function process(Request $request, $id)
     {
         $validator = Validator::make(
@@ -208,7 +209,15 @@ class BusinessReceivingsController extends BaseController
                 $customer = $receiver;
                 if (!$this->isPersonId($receiver)) {
                     //receiver name received and not the ID ,so create a new customer and get the id
-                    $det = ['biz_id' => $bizID, 'surname' => $receiver, 'firstname' => $receiver, 'author' => $user];
+                    $det = [
+                            'biz_id' => $bizID, 
+                            'surname' => $receiver, 
+                            'firstname' => $receiver, 
+                            'email'=>'',
+                            'address'=>'',
+                            'avatar'=>'',
+                            'phone'=>'',
+                            'user' => $user];
                     $result = $this->customerRepo->add($det);
                     $customer = $result->getData()->data->id;
                 }
@@ -247,6 +256,43 @@ class BusinessReceivingsController extends BaseController
             DB::commit();
             //send nicer data to the user
             $response_message = $this->customHttpResponse(200, 'Processed successful.', $data);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message);
+        }
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
+        DB::beginTransaction();
+        try {
+            $in = $this->receivingsRepo->delete($id, $bizID);
+
+            $result = $this->receivingsRepo->showAllByBusiness($bizID);
+            $res =  ['business_receivings_sum' => $result];
+
+            $message =  "Stock created successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Stock deleted successful.', $res);
             return response()->json($response_message);
         } catch (\Throwable $th) {
 
