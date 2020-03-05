@@ -40,10 +40,11 @@ class OutletsController extends BaseController
         $result = $this->outletsRepo->showAllByBusiness($bizID);
         return ['outlets' => $result];
     }
-    public function showAllInfoByBusiness($bizId, OutletsRepository $outletsRepo)
+    public function showAllInfoByBusiness(Request $request)
     {
-        // $businessId = $request->get('businessId');
-        $result = $this->outletsRepo->showAllInfoByBusiness($bizId);
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $result = $this->outletsRepo->showAllInfoByBusiness($bizID);
         return ['outlets' => $result];
     }
 
@@ -94,7 +95,7 @@ class OutletsController extends BaseController
             $detail['biz_id'] = $bizID;
             $in = $this->outletsRepo->add($detail);
 
-            $result = $this->outletsRepo->showAllByBusiness($bizID);
+            $result = $this->outletsRepo->showAllInfoByBusiness($bizID);
             $res =  ['outlets' => $result];
 
             $message =  "Outlet created successfully created";
@@ -157,7 +158,7 @@ class OutletsController extends BaseController
             $detail = $request->input();
             $in = $this->outletsRepo->update($id, $detail, $bizID);
 
-            $result = $this->outletsRepo->showAllByBusiness($bizID);
+            $result = $this->outletsRepo->showAllInfoByBusiness($bizID);
             $res =  ['outlets' => $result];
 
             $message =  "Outlet updated successfully created";
@@ -201,7 +202,7 @@ class OutletsController extends BaseController
         try {
             $in = $this->outletsRepo->delete($id, $bizID);
 
-            $result = $this->outletsRepo->showAllByBusiness($bizID);
+            $result = $this->outletsRepo->showAllInfoByBusiness($bizID);
             $res =  ['outlets' => $result];
 
             $message =  "Outlet deleted successfully created";

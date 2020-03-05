@@ -9,6 +9,9 @@ use App\Api\V1\Models\BusinessStocks;
 use App\Api\V1\Models\BusinessSupply;
 use App\Api\V1\Models\BusinessSupplySum;
 use App\Api\V1\Controllers\BaseController;
+use App\Api\V1\Repositories\BusinessCustomerCreditRepository;
+use App\Api\V1\Repositories\BusinessReceivingsRepository;
+use App\Api\V1\Repositories\BusinessSupplyRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -22,6 +25,19 @@ use Illuminate\Support\Facades\Validator;
 
 class BusinessSupplyController extends BaseController
 {
+    private $supplyRepo;
+    private $creditRepo;
+    private $rxRepo;
+
+    public function __construct(
+        BusinessSupplyRepository $supplyRepo,
+        BusinessCustomerCreditRepository $creditRepo,
+        BusinessReceivingsRepository $rxRepo
+    ) {
+        $this->supplyRepo = $supplyRepo;
+        $this->creditRepo = $creditRepo;
+        $this->rxRepo = $rxRepo;
+    }
 
     public static function showAll()
     {
@@ -53,6 +69,143 @@ class BusinessSupplyController extends BaseController
             ->get();
         return $result;
     }
+    public function filter(Request $request, $code)
+    {
+        $bizID = $request->user('api')->biz_id;
+        $user = $request->user('api')->id;
+
+        $result = $this->supplyRepo->filter($code, $bizID);
+        return ['current_supplies' => $result];
+    }
+
+
+    public function distribute(Request $request)
+    {
+
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                // 'current_receivings' => 'required',
+                // 'distribution.*' => 'required',
+                // 'current_receivings.supply_code' => 'required',
+                // 'distribution.*.amount' => 'required|integer'
+            ]
+        );
+
+        if ($validator->fails()) {
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info($validator);
+
+            //send nicer error to the user
+            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
+            return response()->json($response_message);
+        }
+
+        $rc = $request->getContent();
+        $rc_decoded = json_decode($rc);
+        // Log::info("details received");
+        // Log::info($rc_decoded);
+
+
+        $currentReceivings = $rc_decoded->current_receivings;
+        $distributions = $rc_decoded->distribution;
+        $distributionsDB = [];
+        $timestamp = Carbon::now();
+        foreach ($distributions as $distribution) {
+            $distributionsDB[] =  [
+                'sku_code' => $currentReceivings->supply_code,
+                'is_outlet' => $distribution->is_outlet ? '1' : '0',
+                'customer' =>  !$distribution->is_outlet ? $distribution->receiver_id : null,
+                'outlet' =>  $distribution->is_outlet ? $distribution->receiver_id : null,
+                'mode' => $distribution->mode,
+                'driver' => $distribution->driver_id,
+                'source' => $distribution->source,
+                'payment_method' => $distribution->payment_method,
+                'amount_paid' => $distribution->deposit,
+                'comment' => $distribution->comment,
+                'total_price' => $distribution->amount,
+                'created_by' => $user,
+                'biz_id' => $bizID,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp
+            ];
+        }
+
+        DB::beginTransaction();
+        try {
+
+            // register distibutions
+            $bss = $this->supplyRepo->distribute($distributionsDB);
+            //update receivings with USED, and date USED
+            $markDetail = ['id' => $currentReceivings->id, 'supply_code' => $currentReceivings->supply_code, 'biz_id' => $bizID];
+            $rx = $this->rxRepo->mark($markDetail);
+            /**
+             * Register the creditor if payment method is Not FULL i.e
+             * Payment method = NONE or PART
+             */
+            if (strtoupper($distribution->payment_method) !== strtoupper('full')) {
+                $balance = $distribution->amount - $distribution->deposit;
+                $deta =  [
+                    'total_amount' => $distribution->amount,
+                    'deposit' => $distribution->deposit,
+                    'is_outlet' => $distribution->is_outlet ? '1' : '0',
+                    'customer' =>  !$distribution->is_outlet ? $distribution->receiver_id : null,
+                    'outlet' =>  $distribution->is_outlet ? $distribution->receiver_id : null,
+                    'balance' => $balance,
+                    'sku_code' => $currentReceivings->supply_code,
+                    'created_by' => $user,
+                    'biz_id' => $bizID
+                ];
+                $cr = $this->creditRepo->add($deta);
+            }
+
+            $message =  "Supply created successfully";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Supply added successful.');
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            // abort(500, ["err" => "errwr", "messa" => "dsdsd"]);
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message, 500);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function add(Request $request)
     {

@@ -221,7 +221,7 @@ $factory->define(BusinessReceivings::class, function (Faker $faker) {
 $factory->define(BusinessReceivingsSum::class, function (Faker $faker) {
     return [
         'brs_id' => $faker->numberBetween($min = 1, $max = 50),
-        'supply_code' => $faker->uuid,
+        'supply_code' => $faker->isbn13,
         'product' => $faker->numberBetween($min = 1, $max = 50),
         'total_items' => $faker->numberBetween($min = 1, $max = 50),
         'total_amount' => $faker->numberBetween($min = 1, $max = 50),
@@ -306,6 +306,7 @@ $factory->define(BusinessSupply::class, function (Faker $faker) {
 $factory->define(BusinessSupplySum::class, function (Faker $faker) {
     return [
         'bss_id' => $faker->numberBetween($min = 1, $max = 50),
+        'sku_code' => $faker->numberBetween($min = 1, $max = 50),
         'total_items' => $faker->numberBetween($min = 1, $max = 50),
         'total_price' => $faker->numberBetween($min = 10000, $max = 5000),
         'amount_paid' => $faker->numberBetween($min = 8000, $max = 10000),
@@ -313,7 +314,11 @@ $factory->define(BusinessSupplySum::class, function (Faker $faker) {
         'payment_method' => $faker->randomElement($array = array('part', 'full', 'none')),
         'is_outlet' => $faker->randomElement($array = array(1, '0')),
         'outlet' => $faker->numberBetween($min = 1, $max = 50),
+        'mode' => $faker->randomElement($array = array('dd', 'mdd')),
         'customer' => $faker->numberBetween($min = 1, $max = 50),
+        'driver' => $faker->numberBetween($min = 1, $max = 50),
+        'source' => $faker->randomElement($array = array('factory', 'depot')),
+        'comment' => $faker->realText($maxNbChars = 100, $indexSize = 2),
         'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
         'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
     ];
@@ -371,7 +376,7 @@ $factory->define(BusinessCustomerCreditSum::class, function (Faker $faker) {
         'deposit' => $faker->numberBetween($min = 1000, $max = 50000),
         'balance' => $faker->numberBetween($min = 1000, $max = 50000),
         'last_payed' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
-        'bss_id' =>  $faker->numberBetween($min = 1, $max = 50),
+        'sku_code' =>  $faker->numberBetween($min = 1, $max = 50),
         'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
         'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
     ];

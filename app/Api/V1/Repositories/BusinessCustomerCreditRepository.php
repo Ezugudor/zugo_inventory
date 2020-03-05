@@ -4,6 +4,7 @@
 namespace App\Api\V1\Repositories;
 
 use App\Api\V1\Models\BusinessCustomerCredit;
+use App\Api\V1\Models\BusinessCustomerCreditSum;
 use App\Api\V1\Repositories\BaseRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -54,57 +55,14 @@ class BusinessCustomerCreditRepository extends BaseRepository
         return $result;
     }
 
-    public function add(Request $request)
+    public function add($rows)
     {
-        $validator = Validator::make(
-            $request->input(),
-            [
-                'product_id' => 'required',
-                'qty' => 'required',
-                'total_amount' => 'required',
-                'created_by' => 'required',
-                'biz_id' => 'required'
-            ]
-        );
-
-
-        if ($validator->fails()) {
-
-            //Log neccessary status detail(s) for debugging purpose.
-            Log::info("logging error" . $validator);
-
-            //send nicer error to the user
-            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
-            return response()->json($response_message);
-        }
-
-        $productName = $request->get('product_name');
-        $productType = $request->get('product_type');
-        $stockQty = $request->get('stock_qty');
-        $price = $request->get('price');
-        $cp = $request->get('cp');
-        $expiry = $request->get('expiry');
-
-        DB::beginTransaction();
         try {
-            $auth = BusinessCustomerCredit::create([
-                'product_name' => $$productName,
-                'product_type' => $productType,
-                'stock_qty' => $stockQty,
-                'price' => $price,
-                'cp' => $cp,
-                'expiry' => $expiry
-            ]);
+            $auth = BusinessCustomerCreditSum::create($rows);
 
             $message =  "Stock created successfully created";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
-
-
-            /**
-             *   If the floww can reach here, then everything is fine
-             *   just commit and send success response back 
-             */
-            DB::commit();
+            
             //send nicer data to the user
             $response_message = $this->customHttpResponse(200, 'Stock added successful.');
             return response()->json($response_message);

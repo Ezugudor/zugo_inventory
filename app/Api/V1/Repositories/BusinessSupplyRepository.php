@@ -53,6 +53,67 @@ class BusinessSupplyRepository extends BaseRepository
             ->get();
         return $result;
     }
+    public static function filter($code, $bizID)
+    {
+        // Log::info($supplyID);
+        $result = BusinessSupplySum::from('business_supply_sum as a')
+            ->select([
+                'a.bss_id', 'a.sku_code', 'a.mode', 'a.source', 'a.comment', 'a.total_price as amount',
+                'a.amount_paid as deposit', 'a.payment_method', 'a.is_outlet', 'a.outlet as outlet_id', 'c.name as outlet_name',
+                'a.customer as customer_id', 'd.surname as customer_surname', 'd.firstname as customer_firstname',
+                'a.driver as driver_id', 'e.surname as driver_surname', 'e.phone as driver_phone', 'e.firstname as driver_firstname', 'b.username',
+                'a.created_at'
+            ])
+            ->leftJoin("business_admin as b", "a.created_by", "=", "b.id")
+            ->leftJoin("outlets as c", "a.outlet", "=", "c.id")
+            ->leftJoin("customer_business as d", "a.customer", "=", "d.id")
+            ->leftJoin("business_driver as e", "a.driver", "=", "e.id")
+            ->where([['a.sku_code', '=', $code], ['a.biz_id', '=', $bizID]])
+            ->get();
+        return $result;
+    }
+
+    public function distribute($rows)
+    {
+        Log::info("Here");
+        Log::info($rows);
+        try {
+            $bss = BusinessSupplySum::insert($rows);
+            $message =  "Supply created successfully";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+            return response()->json($bss);
+        } catch (\Throwable $th) {
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function add(Request $request)
     {

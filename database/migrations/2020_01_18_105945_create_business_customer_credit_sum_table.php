@@ -25,13 +25,13 @@ class CreateBusinessCustomerCreditSumTable extends Migration
             $table->integer('deposit');
             $table->integer('balance');
             $table->timestamp('last_payed');
-            $table->unsignedBigInteger('bss_id');
+            $table->string('sku_code');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('biz_id');
             $table->timestamps();
 
             // indexing
-            $table->index(['created_by', 'biz_id', 'outlet', 'bss_id', 'customer'],'business_customer_credit_sum_index');
+            $table->index(['created_by', 'biz_id', 'outlet', 'customer'], 'business_customer_credit_sum_index');
 
             // relations
             $table->foreign('created_by')
@@ -49,12 +49,6 @@ class CreateBusinessCustomerCreditSumTable extends Migration
             $table->foreign('outlet')
                 ->references('id')
                 ->on('outlets')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('bss_id')
-                ->references('id')
-                ->on('business_supply_sum')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 

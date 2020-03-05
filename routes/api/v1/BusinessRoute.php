@@ -131,7 +131,7 @@ $api->version(
             //Business Outlets Routes
             $api->get('business/outlets', [
                 'as' => 'business_outlet.viewall',
-                'uses' => 'OutletsController@showAllByBusiness',
+                'uses' => 'OutletsController@showAllInfoByBusiness',
             ]);
 
             $api->get('business/outlets/{id}', [
@@ -214,9 +214,14 @@ $api->version(
                 'uses' => 'BusinessSupplyController@show',
             ]);
 
+            $api->get('business/supply/filter/{id}', [
+                'as' => 'business_supply.filter',
+                'uses' => 'BusinessSupplyController@filter',
+            ]);
+
             $api->post('business/supply', [
-                'as' => 'business_supply.add',
-                'uses' => 'BusinessSupplyController@add',
+                'as' => 'business_supply.distribute',
+                'uses' => 'BusinessSupplyController@distribute',
             ]);
 
             $api->delete('business/supply/{id}', [
