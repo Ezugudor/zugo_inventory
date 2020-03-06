@@ -29,12 +29,15 @@ class DriverController extends BaseController
 
     public function showAll()
     {
+
         $result = $this->driverRepo->showAll();
         return ['business_drivers' => $result];
     }
-    public function showAllByBusiness($bizId)
+    public function showAllByBusiness(Request $request)
     {
-        $result = $this->driverRepo->showAllByBusiness($bizId);
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $result = $this->driverRepo->showAllByBusiness($bizID);
         return ['business_drivers' => $result];
     }
 
@@ -49,15 +52,23 @@ class DriverController extends BaseController
         return $result;
     }
 
+
+    ///////////////////////////////////////////
+    ///////////////////////////////////////////
+    ///////////////////////////////////////////
+
+
     public function add(Request $request)
     {
+
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
         $validator = Validator::make(
             $request->input(),
             [
                 'surname' => 'required',
-                'firstname' => 'required',
-                'email' => 'required',
-                'biz_id' => 'required'
+                'firstname' => 'required'
             ]
         );
 
@@ -72,24 +83,35 @@ class DriverController extends BaseController
             return response()->json($response_message);
         }
 
+        $rc = $request->getContent();
+        $details = json_decode($rc);
+        // Log::info("details received");
+        // Log::info($rc_decoded);
 
-        $surname = $request->get('surname');
-        $firstname = $request->get('firstname');
-        $email = $request->get('email');
-        $phone = $request->get('phone');
-        $bizID = $request->get('biz_id');
+
+        // $currentReceivings = $rc_decoded->current_receivings;
+        // $distributions = $rc_decoded->distribution;
+
+
 
         DB::beginTransaction();
         try {
-            $auth = BusinessDriver::create([
-                'surname' => $surname,
-                'firstname' => $firstname,
-                'phone' => $phone,
-                'email' => $email,
+            $data =  [
+                'surname' => $details->surname,
+                'firstname' => $details->firstname,
+                'email' => $details->email,
+                'phone' => $details->phone,
+                'truck_id' => $details->truck_id,
+                'address' => $details->address,
+                'created_by' => $user,
                 'biz_id' => $bizID
-            ]);
+            ];
+            $bss = $this->driverRepo->add($data);
 
-            $message =  "Customer created successfully";
+            $result = $this->driverRepo->showAllByBusiness($bizID);
+            $res =  ['business_drivers' => $result];
+
+            $message =  "Driver created successfully";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
 
 
@@ -99,7 +121,7 @@ class DriverController extends BaseController
              */
             DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Outlet added successful.');
+            $response_message = $this->customHttpResponse(200, 'Driver added successful.', $res);
             return response()->json($response_message);
         } catch (\Throwable $th) {
 
@@ -110,7 +132,113 @@ class DriverController extends BaseController
 
             //send nicer data to the user
             $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message, 500);
+        }
+    }
+
+    // //////////////////////////////////////
+    // //////////////////////////////////////
+    // //////////////////////////////////////
+
+    public function update(Request $request)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $validator = Validator::make(
+            $request->input(),
+            [
+                'id' => 'required',
+                'surname' => 'required',
+                'firstname' => 'required',
+                'email' => 'required'
+            ]
+        );
+
+        // Log::info("logging Requests inputs");
+        // Log::info($request->input());
+        if ($validator->fails()) {
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("logging error" . $validator);
+
+
+            //send nicer error to the user
+            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
+            return response()->json($response_message, 401);
+        }
+
+        DB::beginTransaction();
+        try {
+            $detail = $request->input();
+            $in = $this->driverRepo->update($detail, $bizID);
+
+            $result = $this->driverRepo->showAllByBusiness($bizID);
+            $res =  ['business_drivers' => $result];
+
+            $message =  "Driver updated successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Driver updated successful.', $res);
             return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message, 500);
+        }
+    }
+
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+
+
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
+        DB::beginTransaction();
+        try {
+            $in = $this->driverRepo->delete($id, $bizID);
+
+            $result = $this->driverRepo->showAllByBusiness($bizID);
+            $res =  ['business_drivers' => $result];
+
+            $message =  "Driver deleted successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Customer deleted successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message, 500);
         }
     }
 }

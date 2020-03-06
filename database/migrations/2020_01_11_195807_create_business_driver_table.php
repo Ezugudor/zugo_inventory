@@ -21,6 +21,7 @@ class CreateBusinessDriverTable extends Migration
             $table->string('firstname',100)->nullable();
             $table->unsignedBigInteger('biz_id')->comment('the business this driver belongs to');
             $table->string('address',100)->nullable();
+            $table->string('truck_id',100)->nullable();
             $table->string('avatar',100)->nullable();
             $table->string('email',100)->nullable();
             $table->string('phone',100)->nullable();

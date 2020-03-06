@@ -60,10 +60,10 @@ class BusinessStocksController extends BaseController
             [
                 'name' => 'required',
                 'type' => 'required',
-                'qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                // 'qty' => 'required',
+                // 'price' => 'required',
+                // 'cp' => 'required',
+                // 'expiry' => 'required'
             ]
         );
 
@@ -123,11 +123,8 @@ class BusinessStocksController extends BaseController
             $request->input(),
             [
                 'name' => 'required',
-                'type' => 'required',
-                'qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                'type' => 'required'
+
             ]
         );
 
@@ -180,7 +177,7 @@ class BusinessStocksController extends BaseController
     {
         $user = $request->user('api')->id;
         $bizID = $request->user('api')->biz_id;
-       
+
         DB::beginTransaction();
         try {
             $in = $this->stocksRepo->delete($id, $bizID);

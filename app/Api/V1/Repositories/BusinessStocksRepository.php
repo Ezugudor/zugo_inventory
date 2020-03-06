@@ -60,10 +60,6 @@ class BusinessStocksRepository extends BaseRepository
             $auth = BusinessStocks::create([
                 'product_name' => $details['name'],
                 'product_type' => $details['type'],
-                'stock_qty' => $details['qty'],
-                'price' => $details['price'],
-                'cp' => $details['cp'],
-                'expiry' => $details['expiry'],
                 'created_by' => $details['user'],
                 'biz_id' => $details['biz_id']
             ]);
@@ -93,10 +89,6 @@ class BusinessStocksRepository extends BaseRepository
                 ->update([
                     'product_name' => $details['name'],
                     'product_type' => $details['type'],
-                    'stock_qty' => $details['qty'],
-                    'price' => $details['price'],
-                    'cp' => $details['cp'],
-                    'expiry' => $details['expiry']
                 ]);
 
             //send nicer data to the user

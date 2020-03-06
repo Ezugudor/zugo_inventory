@@ -191,15 +191,32 @@ $api->version(
             ]);
 
             //Business Drivers Routes
-            $api->get('business/{bizId}/drivers', [
+            $api->post('business/drivers', [
+                'as' => 'business_driver.add',
+                'uses' => 'DriverController@add',
+            ]);
+
+            $api->put('business/drivers/', [
+                'as' => 'business_driver.update',
+                'uses' => 'DriverController@update',
+            ]);
+
+            $api->delete('business/drivers/{id}', [
+                'as' => 'business_driver.delete',
+                'uses' => 'DriverController@delete',
+            ]);
+
+            $api->get('business/drivers', [
                 'as' => 'drivers.viewall',
                 'uses' => 'DriverController@showAllByBusiness',
             ]);
 
-            $api->get('business/{bizId}/drivers/{id}', [
+            $api->get('business/drivers/{id}', [
                 'as' => 'drivers.view',
                 'uses' => 'DriverController@show',
             ]);
+
+
 
 
 

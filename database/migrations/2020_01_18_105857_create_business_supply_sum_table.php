@@ -21,6 +21,7 @@ class CreateBusinessSupplySumTable extends Migration
             $table->integer('total_items');
             $table->integer('total_price')->comment("the total price / worth of the total items to be supplied");
             $table->integer('amount_paid')->comment("the amount paid(if payment method is FULL)/deposited(if PART) by the customer for this transaction");
+            $table->integer('qty')->comment("the amount of items supplied to the customer/outlet");
             $table->string('invoice', 100);
             $table->enum('payment_method', ['part', 'full', 'none'])->default('full');
             $table->enum('is_outlet', [1, 0])->default(0);

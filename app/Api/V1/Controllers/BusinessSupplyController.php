@@ -127,6 +127,7 @@ class BusinessSupplyController extends BaseController
                 'payment_method' => $distribution->payment_method,
                 'amount_paid' => $distribution->deposit,
                 'comment' => $distribution->comment,
+                'qty' => $distribution->qty,
                 'total_price' => $distribution->amount,
                 'created_by' => $user,
                 'biz_id' => $bizID,

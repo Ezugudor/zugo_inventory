@@ -58,7 +58,7 @@ class BusinessSupplyRepository extends BaseRepository
         // Log::info($supplyID);
         $result = BusinessSupplySum::from('business_supply_sum as a')
             ->select([
-                'a.bss_id', 'a.sku_code', 'a.mode', 'a.source', 'a.comment', 'a.total_price as amount',
+                'a.bss_id', 'a.sku_code', 'a.mode', 'a.source', 'a.comment','a.qty', 'a.total_price as amount',
                 'a.amount_paid as deposit', 'a.payment_method', 'a.is_outlet', 'a.outlet as outlet_id', 'c.name as outlet_name',
                 'a.customer as customer_id', 'd.surname as customer_surname', 'd.firstname as customer_firstname',
                 'a.driver as driver_id', 'e.surname as driver_surname', 'e.phone as driver_phone', 'e.firstname as driver_firstname', 'b.username',
