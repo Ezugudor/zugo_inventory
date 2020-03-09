@@ -6,6 +6,7 @@ namespace App\Api\V1\Controllers;
 use App\Api\V1\Models\BusinessCreditPayment;
 use App\Api\V1\Controllers\BaseController;
 use App\Api\V1\Repositories\BusinessCreditPaymentRepository;
+use App\Api\V1\Repositories\BusinessCustomerCreditRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 // use App\Transformers\AuthorizationTransformer;
@@ -20,10 +21,12 @@ use Illuminate\Support\Facades\Validator;
 class BusinessCreditPaymentController extends BaseController
 {
     private $creditPaymentRepo;
+    private $customerCreditRepo;
 
-    public function __construct(BusinessCreditPaymentRepository $creditPayment)
+    public function __construct(BusinessCreditPaymentRepository $creditPayment, BusinessCustomerCreditRepository $customerCreditRepo)
     {
         $this->creditPaymentRepo = $creditPayment;
+        $this->customerCreditRepo = $customerCreditRepo;
     }
 
     public function showAll()
@@ -32,9 +35,11 @@ class BusinessCreditPaymentController extends BaseController
         return ['business_credit_payments' => $result];
     }
 
-    public function showAllByBusiness($businessId)
+    public function showAllByBusiness(Request $request)
     {
-        $result = $this->creditPaymentRepo->showAllByBusiness($businessId);
+        $bizID = $request->user('api')->biz_id;
+        $user = $request->user('api')->id;
+        $result = $this->creditPaymentRepo->showAllByBusiness($bizID);
         return ['business_credit_payments' => $result];
     }
 
@@ -49,51 +54,68 @@ class BusinessCreditPaymentController extends BaseController
             ->get();
         return $result;
     }
-
     public function add(Request $request)
     {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
         $validator = Validator::make(
             $request->input(),
             [
-                'product_name' => 'required',
-                'product_type' => 'required',
-                'stock_qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
+                'balance' => 'required',
+                'amount' => 'required',
+                'is_outlet' => 'required',
+                'id' => 'required'
             ]
         );
-
 
         if ($validator->fails()) {
 
             //Log neccessary status detail(s) for debugging purpose.
             Log::info("logging error" . $validator);
 
+
             //send nicer error to the user
             $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
             return response()->json($response_message);
         }
 
-        $productName = $request->get('product_name');
-        $productType = $request->get('product_type');
-        $stockQty = $request->get('stock_qty');
-        $price = $request->get('price');
-        $cp = $request->get('cp');
-        $expiry = $request->get('expiry');
+        $rc = $request->getContent();
+        $reqData = json_decode($rc);
+
+        $timestamp = Carbon::now();
+
+        $creditDBData =  [
+            'is_outlet' => $reqData->is_outlet ? '1' : '0',
+            'customer' =>  $reqData->customer_id,
+            'outlet' =>  $reqData->outlet_id,
+            'amount' => $reqData->amount,
+            'bccs_id' => $reqData->id,
+            'payment_desc' => $reqData->comment,
+            'created_by' => $user,
+            'biz_id' => $bizID,
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp
+        ];
+
+        $updateData =  [
+
+            'balance' => $reqData->balance - $reqData->amount,
+            'biz_id' => $bizID,
+            'bccs_id' => $reqData->id,
+        ];
+
 
         DB::beginTransaction();
         try {
-            $auth = BusinessCreditPayment::create([
-                'product_name' => $$productName,
-                'product_type' => $productType,
-                'stock_qty' => $stockQty,
-                'price' => $price,
-                'cp' => $cp,
-                'expiry' => $expiry
-            ]);
 
-            $message =  "Stock created successfully created";
+            $in = $this->creditPaymentRepo->add($creditDBData);
+
+            $inn = $this->customerCreditRepo->updateBalance($updateData);
+
+            $result = $this->customerCreditRepo->showAllByBusiness($bizID);
+            $res =  ['business_customer_credits' => $result];
+
+            $message =  "Credit created successfully created";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
 
 
@@ -103,7 +125,104 @@ class BusinessCreditPaymentController extends BaseController
              */
             DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Stock added successful.');
+            $response_message = $this->customHttpResponse(200, 'Credit added successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message, 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+        $validator = Validator::make(
+            $request->input(),
+            [
+                'debtor' => 'required',
+                'amount' => 'required'
+
+            ]
+        );
+
+        Log::info("logging Requests inputs");
+        Log::info($request->input());
+        if ($validator->fails()) {
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("logging error" . $validator);
+
+
+            //send nicer error to the user
+            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
+            return response()->json($response_message);
+        }
+
+        DB::beginTransaction();
+        try {
+            $detail = $request->input();
+            $detail['user'] = $user;
+            $detail['biz_id'] = $bizID;
+            $in = $this->customerCreditRepo->update($detail);
+
+            $result = $this->customerCreditRepo->showAllByBusiness($bizID);
+            $res =  ['business_customer_credits' => $result];
+
+            $message =  "Credit created successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Credit added successful.', $res);
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message, 500);
+        }
+    }
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user('api')->id;
+        $bizID = $request->user('api')->biz_id;
+
+        DB::beginTransaction();
+        try {
+            $in = $this->customerCreditRepo->delete($id, $bizID);
+
+            $result = $this->customerCreditRepo->showAllByBusiness($bizID);
+            $res =  ['business_customer_credits' => $result];
+
+            $message =  "Credit created successfully created";
+            Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
+
+
+            /**
+             *   If the floww can reach here, then everything is fine
+             *   just commit and send success response back 
+             */
+            DB::commit();
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Credit deleted successful.', $res);
             return response()->json($response_message);
         } catch (\Throwable $th) {
 

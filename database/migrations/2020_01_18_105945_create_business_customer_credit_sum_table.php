@@ -25,7 +25,9 @@ class CreateBusinessCustomerCreditSumTable extends Migration
             $table->integer('deposit');
             $table->integer('balance');
             $table->timestamp('last_payed');
-            $table->string('sku_code');
+            $table->enum('is_auto_generated', [1, 0])->default(1)->comment("if true, this record can not be deleted/modified from the frontend");
+            $table->string('sku_code')->nullable()->comment("should only have value if [auto_generated] field is true");
+            $table->string('comment', 500)->nullable()->comment("additional comment for this credit");
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('biz_id');
             $table->timestamps();

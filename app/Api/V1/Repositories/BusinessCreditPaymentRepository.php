@@ -42,7 +42,7 @@ class BusinessCreditPaymentRepository extends BaseRepository
     }
 
 
-    public static function show(Request $request, $creditPaymentId)
+    public static function show($creditPaymentId)
     {
         Log::info($creditPaymentId);
         $result = BusinessCreditPayment::from('business_credit_payment')
@@ -53,60 +53,21 @@ class BusinessCreditPaymentRepository extends BaseRepository
         return $result;
     }
 
-    public function add(Request $request)
+    public function add($details)
     {
-        $validator = Validator::make(
-            $request->input(),
-            [
-                'product_name' => 'required',
-                'product_type' => 'required',
-                'stock_qty' => 'required',
-                'price' => 'required',
-                'cp' => 'required',
-                'expiry' => 'required'
-            ]
-        );
 
-
-        if ($validator->fails()) {
-
-            //Log neccessary status detail(s) for debugging purpose.
-            Log::info("logging error" . $validator);
-
-            //send nicer error to the user
-            $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
-            return response()->json($response_message);
-        }
-
-        $productName = $request->get('product_name');
-        $productType = $request->get('product_type');
-        $stockQty = $request->get('stock_qty');
-        $price = $request->get('price');
-        $cp = $request->get('cp');
-        $expiry = $request->get('expiry');
-
-        DB::beginTransaction();
         try {
-            $auth = BusinessCreditPayment::create([
-                'product_name' => $$productName,
-                'product_type' => $productType,
-                'stock_qty' => $stockQty,
-                'price' => $price,
-                'cp' => $cp,
-                'expiry' => $expiry
-            ]);
+            $auth = BusinessCreditPayment::insert($details);
 
-            $message =  "Stock created successfully created";
+            $message =  "Payment created successfully created";
             Log::info(Carbon::now()->toDateTimeString() . " => " .  $message);
-
 
             /**
              *   If the floww can reach here, then everything is fine
              *   just commit and send success response back 
              */
-            DB::commit();
             //send nicer data to the user
-            $response_message = $this->customHttpResponse(200, 'Stock added successful.');
+            $response_message = $this->customHttpResponse(200, 'Payment added successful.');
             return response()->json($response_message);
         } catch (\Throwable $th) {
 
@@ -117,7 +78,73 @@ class BusinessCreditPaymentRepository extends BaseRepository
 
             //send nicer data to the user
             $response_message = $this->customHttpResponse(500, 'Transaction Error.');
+            return response()->json($response_message,500);
+        }
+    }
+
+    // //////////////////////////////////////////
+    // //////////////////////////////////////////
+    // //////////////////////////////////////////
+
+
+    public function update($id, $details)
+    {
+
+        try {
+
+            $auth = BusinessCreditPayment::where('id', $id)
+                ->where('biz_id', $details['biz_id'])
+                ->update([
+                    'product_name' => $details['name'],
+                    'product_type' => $details['type'],
+                ]);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Credit updated successful.');
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error in Stocks repo.');
             return response()->json($response_message);
         }
     }
+
+
+    ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
+
+
+    public function delete($id, $bizID)
+    {
+
+        try {
+
+            $auth = BusinessCreditPayment::where('id', $id)
+                ->where('biz_id', $bizID)
+                ->delete();
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(200, 'Credit deleted successful.');
+            return response()->json($response_message);
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            //Log neccessary status detail(s) for debugging purpose.
+            Log::info("One of the DB statements failed. Error: " . $th);
+
+            //send nicer data to the user
+            $response_message = $this->customHttpResponse(500, 'Transaction Error in Stocks repo.');
+            return response()->json($response_message);
+        }
+    }
+
+    
 }

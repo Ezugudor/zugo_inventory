@@ -30,7 +30,7 @@ class CreateBusinessSupplySumTable extends Migration
             $table->enum('mode', ['mdd', 'dd'])->default('mdd');
             $table->enum('source', ['factory', 'depot'])->default('factory');
             $table->unsignedBigInteger('driver')->nullable()->comment('the driver that made this supply');
-            $table->string('comment', 500)->comment("additional comment for this supply");
+            $table->string('comment', 500)->nullable()->comment("additional comment for this supply");
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('biz_id');
             $table->timestamps();

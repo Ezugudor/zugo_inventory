@@ -114,6 +114,7 @@ class BusinessSupplyController extends BaseController
         $currentReceivings = $rc_decoded->current_receivings;
         $distributions = $rc_decoded->distribution;
         $distributionsDB = [];
+        $creditDB = [];
         $timestamp = Carbon::now();
         foreach ($distributions as $distribution) {
             $distributionsDB[] =  [
@@ -134,6 +135,25 @@ class BusinessSupplyController extends BaseController
                 'created_at' => $timestamp,
                 'updated_at' => $timestamp
             ];
+            //prep for credit
+            if (strtoupper($distribution->payment_method) !== strtoupper('full')) {
+                $balance = $distribution->amount - $distribution->deposit;
+                $creditDB[] =  [
+                    'total_amount' => $distribution->amount,
+                    'deposit' => $distribution->deposit,
+                    'is_outlet' => $distribution->is_outlet ? '1' : '0',
+                    'customer' =>  !$distribution->is_outlet ? $distribution->receiver_id : null,
+                    'outlet' =>  $distribution->is_outlet ? $distribution->receiver_id : null,
+                    'balance' => $balance,
+                    'is_auto_generated' => '1',
+                    'comment' => $distribution->comment,
+                    'sku_code' => $currentReceivings->supply_code,
+                    'created_by' => $user,
+                    'biz_id' => $bizID,
+                    'created_at' => $timestamp,
+                    'updated_at' => $timestamp
+                ];
+            }
         }
 
         DB::beginTransaction();
@@ -145,23 +165,12 @@ class BusinessSupplyController extends BaseController
             $markDetail = ['id' => $currentReceivings->id, 'supply_code' => $currentReceivings->supply_code, 'biz_id' => $bizID];
             $rx = $this->rxRepo->mark($markDetail);
             /**
-             * Register the creditor if payment method is Not FULL i.e
+             * Register the creditor(s) if payment method is Not FULL i.e
              * Payment method = NONE or PART
              */
-            if (strtoupper($distribution->payment_method) !== strtoupper('full')) {
-                $balance = $distribution->amount - $distribution->deposit;
-                $deta =  [
-                    'total_amount' => $distribution->amount,
-                    'deposit' => $distribution->deposit,
-                    'is_outlet' => $distribution->is_outlet ? '1' : '0',
-                    'customer' =>  !$distribution->is_outlet ? $distribution->receiver_id : null,
-                    'outlet' =>  $distribution->is_outlet ? $distribution->receiver_id : null,
-                    'balance' => $balance,
-                    'sku_code' => $currentReceivings->supply_code,
-                    'created_by' => $user,
-                    'biz_id' => $bizID
-                ];
-                $cr = $this->creditRepo->add($deta);
+            if ($creditDB) {
+
+                $cr = $this->creditRepo->add($creditDB);
             }
 
             $message =  "Supply created successfully";

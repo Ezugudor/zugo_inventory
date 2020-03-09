@@ -70,26 +70,59 @@ $api->version(
             ]);
 
             //Business Credit Payment Routes
-            $api->get('business/{bizId}/credit-payment', [
+
+            $api->get('business/credit-payment', [
                 'as' => 'business_credit_payment.viewall',
                 'uses' => 'BusinessCreditPaymentController@showAllByBusiness',
             ]);
 
-            $api->get('business/{bizId}/credit-payment/{id}', [
+            $api->get('business/credit-payment/{id}', [
                 'as' => 'business_credit_payment.view',
                 'uses' => 'BusinessCreditPaymentController@show',
             ]);
 
-            // Business Customer Credit Routes
-            $api->get('business/{bizId}/customer-credit', [
-                'as' => 'business_customer_credit.viewall',
-                'uses' => 'BusinessCustomerCreditController@showAll',
+            $api->post('business/credit-payment', [
+                'as' => 'business_credit_payment.add',
+                'uses' => 'BusinessCreditPaymentController@add',
             ]);
 
-            $api->get('business/{bizId}/customer-credit/{id}', [
+            $api->put('business/credit-payment', [
+                'as' => 'business_credit_payment.update',
+                'uses' => 'BusinessCreditPaymentController@update',
+            ]);
+
+            $api->delete('business/credit-payment/{id}', [
+                'as' => 'business_credit_payment.delete',
+                'uses' => 'BusinessCreditPaymentController@delete',
+            ]);
+
+
+            // Business Customer Credit Routes
+            $api->get('business/customer-credit', [
+                'as' => 'business_customer_credit.viewall',
+                'uses' => 'BusinessCustomerCreditController@showAllByBusiness',
+            ]);
+
+            $api->get('business/customer-credit/{id}', [
                 'as' => 'business_customer_credit.view',
                 'uses' => 'BusinessCustomerCreditController@show',
             ]);
+
+            $api->post('business/customer-credit', [
+                'as' => 'business_customer_credit.add',
+                'uses' => 'BusinessCustomerCreditController@add',
+            ]);
+
+            $api->put('business/customer-credit', [
+                'as' => 'business_customer_credit.update',
+                'uses' => 'BusinessCustomerCreditController@update',
+            ]);
+
+            $api->delete('business/customer-credit/{id}', [
+                'as' => 'business_customer_credit.delete',
+                'uses' => 'BusinessCustomerCreditController@delete',
+            ]);
+
 
             //Business Customer Routes
             $api->get('business/customers', [
@@ -117,16 +150,7 @@ $api->version(
                 'uses' => 'CustomerController@delete',
             ]);
 
-            // old
-            $api->get('business/{bizId}/customers', [
-                'as' => 'business_customer.viewall',
-                'uses' => 'CustomerController@showAllByBusiness',
-            ]);
 
-            $api->get('business/{bizId}/customers/{id}', [
-                'as' => 'business_customer.view',
-                'uses' => 'CustomerController@show',
-            ]);
 
             //Business Outlets Routes
             $api->get('business/outlets', [
@@ -152,17 +176,6 @@ $api->version(
             $api->delete('business/outlets/{id}', [
                 'as' => 'business_outlet.delete',
                 'uses' => 'OutletsController@delete',
-            ]);
-
-            //old
-            $api->get('business/{bizId}/outlets', [
-                'as' => 'business_outlet.viewall',
-                'uses' => 'OutletsController@showAllInfoByBusiness',
-            ]);
-
-            $api->get('business/{bizId}/outlets/{id}', [
-                'as' => 'business_outlet.view',
-                'uses' => 'OutletsController@show',
             ]);
 
             //Business Receivings Routes

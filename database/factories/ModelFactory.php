@@ -378,7 +378,9 @@ $factory->define(BusinessCustomerCreditSum::class, function (Faker $faker) {
         'deposit' => $faker->numberBetween($min = 1000, $max = 50000),
         'balance' => $faker->numberBetween($min = 1000, $max = 50000),
         'last_payed' => $faker->dateTimeThisYear($max = '+1 year')->format('Y-m-d H:i:s'),
+        'is_auto_generated' => $faker->randomElement($array = array(1, '0')),
         'sku_code' =>  $faker->numberBetween($min = 1, $max = 50),
+        'comment' => $faker->realText($maxNbChars = 100, $indexSize = 2),
         'created_by' =>  $faker->numberBetween($min = 1, $max = 50),
         'biz_id' =>  $faker->numberBetween($min = 1, $max = 50),
     ];

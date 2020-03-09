@@ -95,6 +95,7 @@ class DriverRepository extends BaseRepository
                     'email' => $details['email'],
                     'phone' => $details['phone'],
                     'address' => $details['address'],
+                    'truck_id' => $details['truck_id'],
 
                 ]);
 
