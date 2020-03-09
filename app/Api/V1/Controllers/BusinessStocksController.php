@@ -32,7 +32,7 @@ class BusinessStocksController extends BaseController
         $result = $this->stocksRepo->showAll();
         return ['business_stocks' => $result];
     }
-    public function showAllByBusiness(Request $request, $bizId)
+    public function showAllByBusiness(Request $request)
     {
         $bizID = $request->user('api')->biz_id;
         // $user = $request->user('api')->id;

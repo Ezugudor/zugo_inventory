@@ -54,17 +54,17 @@ $api->version(
                 'uses' => 'BusinessStocksController@delete',
             ]);
 
-            $api->get('business/{bizId}/stocks', [
+            $api->get('business/stocks', [
                 'as' => 'business_stock.viewall',
                 'uses' => 'BusinessStocksController@showAllByBusiness',
             ]);
 
-            $api->get('business/{bizId}/stocks/{id}', [
+            $api->get('business/stocks/{id}', [
                 'as' => 'business_stock.view',
                 'uses' => 'BusinessStocksController@show',
             ]);
 
-            $api->post('business/{bizId}/add', [
+            $api->post('business/add', [
                 'as' => 'business_stock.add',
                 'uses' => 'BusinessStocksController@add',
             ]);
@@ -179,12 +179,12 @@ $api->version(
             ]);
 
             //Business Receivings Routes
-            $api->get('business/{bizId}/receivings', [
+            $api->get('business/receivings', [
                 'as' => 'receivings.viewall',
                 'uses' => 'BusinessReceivingsController@showAllByBusiness',
             ]);
 
-            $api->get('business/{bizId}/receivings/{id}', [
+            $api->get('business/receivings/{id}', [
                 'as' => 'receivings.view',
                 'uses' => 'BusinessReceivingsController@show',
             ]);

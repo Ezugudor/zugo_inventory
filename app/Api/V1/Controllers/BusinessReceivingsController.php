@@ -42,9 +42,10 @@ class BusinessReceivingsController extends BaseController
         $result = $this->receivingsRepo->showAll();
         return ['business_receivings_sum' => $result];
     }
-    public function showAllByBusiness($bizId)
+    public function showAllByBusiness(Request $request)
     {
-        $result = $this->receivingsRepo->showAllByBusiness($bizId);
+        $bizID = $request->user('api')->biz_id;
+        $result = $this->receivingsRepo->showAllByBusiness($bizID);
         return ['business_receivings_sum' => $result];
     }
 
@@ -210,14 +211,15 @@ class BusinessReceivingsController extends BaseController
                 if (!$this->isPersonId($receiver)) {
                     //receiver name received and not the ID ,so create a new customer and get the id
                     $det = [
-                            'biz_id' => $bizID, 
-                            'surname' => $receiver, 
-                            'firstname' => $receiver, 
-                            'email'=>'',
-                            'address'=>'',
-                            'avatar'=>'',
-                            'phone'=>'',
-                            'user' => $user];
+                        'biz_id' => $bizID,
+                        'surname' => $receiver,
+                        'firstname' => $receiver,
+                        'email' => '',
+                        'address' => '',
+                        'avatar' => '',
+                        'phone' => '',
+                        'user' => $user
+                    ];
                     $result = $this->customerRepo->add($det);
                     $customer = $result->getData()->data->id;
                 }
