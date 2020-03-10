@@ -32,9 +32,10 @@ class BusinessCreditPaymentRepository extends BaseRepository
     public function showAllByBusiness($businessId)
     {
         $result = BusinessCreditPayment::from('business_credit_payment as a')
-            ->select(['a.id', 'a.bcp_id', 'b.firstname as customer', 'a.is_outlet', 'c.name as outlet', 'a.amount', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.bccs_id', 'a.created_at'])
+            ->select(['a.id', 'a.bcp_id', 'b.firstname as customer', 'a.is_outlet', 'c.name as outlet', 'a.amount', 'd.surname as author', 'a.payment_type', 'a.payment_desc', 'a.receipt_id', 'a.bccs_id', 'a.created_at'])
             ->leftJoin("customer_business as b", "a.customer", "=", "b.id")
             ->leftJoin("outlets as c", "a.outlet", "=", "c.id")
+            ->leftJoin("business_admin as d", "a.created_by", "=", "d.id")
             ->where('a.biz_id', '=', $businessId)
             ->limit(30)
             ->get();
@@ -78,7 +79,7 @@ class BusinessCreditPaymentRepository extends BaseRepository
 
             //send nicer data to the user
             $response_message = $this->customHttpResponse(500, 'Transaction Error.');
-            return response()->json($response_message,500);
+            return response()->json($response_message, 500);
         }
     }
 
@@ -145,6 +146,4 @@ class BusinessCreditPaymentRepository extends BaseRepository
             return response()->json($response_message);
         }
     }
-
-    
 }

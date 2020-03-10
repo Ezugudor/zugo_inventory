@@ -63,6 +63,7 @@ class BusinessCreditPaymentController extends BaseController
             [
                 'balance' => 'required',
                 'amount' => 'required',
+                'payment_method' => 'required',
                 'is_outlet' => 'required',
                 'id' => 'required'
             ]
@@ -91,6 +92,8 @@ class BusinessCreditPaymentController extends BaseController
             'amount' => $reqData->amount,
             'bccs_id' => $reqData->id,
             'payment_desc' => $reqData->comment,
+            'payment_type' => $reqData->payment_method,
+            'receipt_id' => $reqData->receipt_id,
             'created_by' => $user,
             'biz_id' => $bizID,
             'created_at' => $timestamp,
