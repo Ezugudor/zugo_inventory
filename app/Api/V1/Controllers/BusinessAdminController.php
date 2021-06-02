@@ -221,6 +221,7 @@ class BusinessAdminController extends BaseController
             $response_message = $this->customHttpResponse(401, 'Incorrect Details. All fields are required.');
             return response()->json($response_message);
         }
+        Log::info("logging error");
 
         $username = $request->get('username');
         $password = $request->get('password');
